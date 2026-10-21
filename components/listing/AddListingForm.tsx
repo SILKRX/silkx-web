@@ -22,6 +22,8 @@ import type { ChangeEvent, FormEvent, ReactNode } from "react";
 import { toast } from "sonner";
 import type { LucideIcon } from "lucide-react";
 
+import { EMPTY_DETAILS, ListingDetailsFields } from "@/components/listing/ListingDetailsFields";
+import type { DetailsForm } from "@/components/listing/ListingDetailsFields";
 import { LocationPicker } from "@/components/map/LocationPicker";
 import type { LocationValue } from "@/components/map/LocationPicker";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -119,6 +121,7 @@ export function AddListingForm() {
   const [location, setLocation] = useState<LocationValue>({ point: null, address: "" });
   const [photos, setPhotos] = useState<LocalImage[]>([]);
   const [panoramas, setPanoramas] = useState<LocalPanorama[]>([]);
+  const [details, setDetails] = useState<DetailsForm>(EMPTY_DETAILS);
   const [agree, setAgree] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const [errors, setErrors] = useState<ListingErrors>({});
@@ -144,9 +147,10 @@ export function AddListingForm() {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw) as { text?: Partial<TextFields>; location?: LocationValue };
+        const parsed = JSON.parse(raw) as { text?: Partial<TextFields>; location?: LocationValue; details?: Partial<DetailsForm> };
         if (parsed.text) setText((t) => ({ ...t, ...parsed.text }));
         if (parsed.location?.point) setLocation(parsed.location);
+        if (parsed.details) setDetails((d) => ({ ...d, ...parsed.details }));
       }
     } catch {
       /* приватный режим / битый JSON — начинаем с чистого листа */
@@ -158,13 +162,13 @@ export function AddListingForm() {
     if (!draftLoaded.current || phase === "done") return;
     const t = setTimeout(() => {
       try {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({ text, location }));
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ text, location, details }));
       } catch {
         /* квота / приватный режим */
       }
     }, 500);
     return () => clearTimeout(t);
-  }, [text, location, phase]);
+  }, [text, location, details, phase]);
 
   // Освобождаем object URL'ы при размонтировании
   const urlsRef = useRef<string[]>([]);
@@ -273,10 +277,11 @@ export function AddListingForm() {
       lng: location.point?.lng ?? "",
       photos: photoPaths,
       panoramas: panoPaths,
+      details,
       agree,
       website: honeypot,
     }),
-    [text, noRooms, location, agree, honeypot],
+    [text, noRooms, location, details, agree, honeypot],
   );
 
   const showErrors = (errs: ListingErrors) => {
@@ -382,6 +387,7 @@ export function AddListingForm() {
     [...photos, ...panoramas].forEach((p) => URL.revokeObjectURL(p.previewUrl));
     setText(EMPTY_TEXT);
     setLocation({ point: null, address: "" });
+    setDetails(EMPTY_DETAILS);
     setPhotos([]);
     setPanoramas([]);
     setAgree(false);
@@ -744,8 +750,21 @@ export function AddListingForm() {
         </div>
       </Section>
 
-      {/* 6. Контакты */}
-      <Section step={6} title="Контакты" subtitle="Номер виден только модератору и покупателям, оставившим заявку.">
+      {/* 6. Подробности */}
+      <Section
+        step={6}
+        title="Подробности (необязательно)"
+        subtitle={
+          text.dealType === "sale"
+            ? "Покажем покупателю, можно ли купить объект в ипотеку, и ответим на вопросы иностранцев через AI-ассистента."
+            : "Условия аренды и детали квартиры — AI-ассистент будет отвечать на вопросы арендаторов по ним."
+        }
+      >
+        <ListingDetailsFields value={details} onChange={setDetails} dealType={text.dealType} />
+      </Section>
+
+      {/* 7. Контакты */}
+      <Section step={7} title="Контакты" subtitle="Номер виден только модератору и покупателям, оставившим заявку.">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id={ids.name} label="Ваше имя" required error={errors.contactName} field="contactName">
             <input

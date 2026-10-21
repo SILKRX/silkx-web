@@ -75,6 +75,7 @@ export async function POST(req: Request) {
         telegram: d.telegram,
         photos: d.photos,
         panoramas: d.panoramas,
+        details: d.details,
         status: "moderation",
         submitter_ip: ip,
       });

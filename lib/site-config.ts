@@ -23,7 +23,7 @@ export const SITE: SiteConfig = {
   phone: "", // например "+998 90 123-45-67"
   email: "", // например "hello@silkx.uz"
   socials: {
-    telegram: "", // https://t.me/<канал>
+    telegram: "https://t.me/+Fc0-KgY6aoBlNTMy",
     instagram: "", // https://instagram.com/<аккаунт>
     linkedin: "", // https://www.linkedin.com/company/<компания>
     facebook: "", // https://facebook.com/<страница>

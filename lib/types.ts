@@ -1,3 +1,5 @@
+import type { PropertyDetails } from "@/lib/property-details";
+
 // Общие доменные типы SILKX. Единый источник правды для UI, моков и (позже) Supabase.
 
 export type DealType = "sale" | "rent";
@@ -90,4 +92,6 @@ export interface Property {
   tour?: TourScene[];
   floor?: number;
   floorsTotal?: number;
+  /** Подробности: дом, коммуникации, рядом, условия аренды/продажи, для иностранцев. */
+  details?: PropertyDetails;
 }

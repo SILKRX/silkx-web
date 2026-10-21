@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { PropertyMap } from "@/components/map/PropertyMap";
+import { PropertyInfo } from "@/components/property/PropertyInfo";
 import { TourButton } from "@/components/tour/TourButton";
 import { TourEmbed } from "@/components/tour/TourEmbed";
 import { formatPrice, formatRooms } from "@/lib/format";
@@ -109,6 +110,8 @@ export function PropertyDetails({ property: p }: { property: Property }) {
             </h2>
             <p className="mt-3 whitespace-pre-line leading-relaxed">{p.description ?? DEFAULT_DESCRIPTION}</p>
           </section>
+
+          <PropertyInfo property={p} />
 
           {p.location && (
             <section aria-labelledby="map-title">

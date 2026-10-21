@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { AIAssistant } from "@/components/AIAssistant";
 import { PropertyDetails } from "@/components/property/PropertyDetails";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -34,6 +35,10 @@ export default function Page({ params }: Params) {
       <SiteHeader />
       <PropertyDetails property={property} />
       <SiteFooter />
+      {/* На мобильном снизу липкая панель цены — поднимаем кнопку ассистента над ней */}
+      <div style={{ ["--ai-offset" as string]: "4.5rem" }}>
+        <AIAssistant propertyId={property.id} />
+      </div>
     </>
   );
 }

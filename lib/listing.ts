@@ -1,4 +1,6 @@
 import { isInTashkent } from "@/lib/geo";
+import { ASSISTANT_LANGS, FACING_LABEL, HEATING_LABEL, PARKING_LABEL, PAYMENT_LABEL, RENOVATION_LABEL } from "@/lib/property-details";
+import type { PropertyDetails } from "@/lib/property-details";
 import { PROPERTY_CATEGORIES, isDistrictSlug } from "@/lib/types";
 import type { Currency, DealType, DistrictSlug, PropertyCategory, RentTerm } from "@/lib/types";
 
@@ -52,6 +54,8 @@ export interface ListingInput {
   /** Пути в хранилище, полученные от /api/listings/upload. */
   photos: string[];
   panoramas: { path: string; title: string }[];
+  /** Подробности (необязательно): дом, коммуникации, условия аренды/продажи, для иностранцев. */
+  details: PropertyDetails;
 }
 
 export type ListingField = keyof ListingInput | "agree";
@@ -203,6 +207,63 @@ export function validateListing(raw: Record<string, unknown>): ValidationResult 
       telegram: telegram || null,
       photos,
       panoramas,
+      details: sanitizeDetails(raw.details, dealType as DealType),
     },
   };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Подробности объекта: всё необязательное, принимаем только значения из белых списков.
+// ---------------------------------------------------------------------------------------------
+const pick = <T extends string>(v: unknown, allowed: Record<T, unknown>): T | undefined =>
+  typeof v === "string" && Object.prototype.hasOwnProperty.call(allowed, v) ? (v as T) : undefined;
+const bool = (v: unknown): boolean => v === true || v === "true";
+const intIn = (v: unknown, min: number, max: number): number | undefined => {
+  const n = typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN;
+  return Number.isInteger(n) && n >= min && n <= max ? n : undefined;
+};
+
+export function sanitizeDetails(raw: unknown, dealType: DealType): PropertyDetails {
+  const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
+  const langs = Array.isArray(r.languages)
+    ? r.languages.filter((l): l is (typeof ASSISTANT_LANGS)[number] => (ASSISTANT_LANGS as readonly unknown[]).includes(l))
+    : [];
+  const payments = Array.isArray(r.payments)
+    ? r.payments.filter((x): x is keyof typeof PAYMENT_LABEL => typeof x === "string" && x in PAYMENT_LABEL)
+    : [];
+  const wechat = typeof r.wechat === "string" && /^[\w-]{3,30}$/.test(r.wechat) ? r.wechat : undefined;
+
+  const out: PropertyDetails = {
+    building: { elevator: bool(r.elevator) || undefined, parking: pick(r.parking, PARKING_LABEL) },
+    utilities: { heating: pick(r.heating, HEATING_LABEL), ac: bool(r.ac) || undefined },
+    interior: { renovation: pick(r.renovation, RENOVATION_LABEL), furnished: bool(r.furnished), windowsFacing: pick(r.windowsFacing, FACING_LABEL) },
+    international: { languages: Array.from(new Set(langs)), wechat, payments: Array.from(new Set(payments)) },
+  };
+
+  if (dealType === "rent") {
+    out.rent = {
+      minTermMonths: intIn(r.minTermMonths, 1, 120) ?? 1,
+      depositMonths: intIn(r.depositMonths, 0, 12) ?? 0,
+      prepayMonths: 1,
+      utilitiesIncluded: bool(r.utilitiesIncluded),
+      registrationHelp: bool(r.registrationHelp),
+      pets: bool(r.pets),
+      kids: bool(r.kids),
+      students: bool(r.students),
+      contract: "simple",
+    };
+  } else {
+    const installment = bool(r.installment)
+      ? { months: intIn(r.installmentMonths, 1, 120) ?? 12, downPct: intIn(r.installmentDownPct, 0, 90) ?? 30, interestFree: true }
+      : undefined;
+    out.sale = {
+      market: r.market === "secondary" ? "secondary" : "primary",
+      documents: {
+        title: bool(r.titleDocs),
+        encumbrance: r.encumbrance === "none" || r.encumbrance === "pledge" ? r.encumbrance : "unknown",
+      },
+      installment,
+    };
+  }
+  return out;
 }

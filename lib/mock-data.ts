@@ -32,6 +32,25 @@ export const MOCK_PROPERTIES: readonly Property[] = [
     address: "ул. Мирзо Улугбека, 56",
     location: { lat: 41.3415, lng: 69.3362 },
     tour: DEMO_TOUR,
+    details: {
+      building: { yearBuilt: 2027, material: "monolith", floors: 16, elevator: true, parking: "underground", ceilingM: 3, security: true },
+      utilities: { heating: "gas-boiler", gas: true, hotWater: "boiler", internet: true, ac: true },
+      interior: { renovation: "none", furnished: false, balcony: true, view: "Парк и горы Чимган на горизонте", windowsFacing: "S" },
+      nearby: [
+        { kind: "metro", name: "Буюк Ипак Йули", minutes: 7, walk: true },
+        { kind: "university", name: "Национальный университет (НУУз)", minutes: 10 },
+        { kind: "park", name: "Парк Мирзо Улугбека", minutes: 5, walk: true },
+        { kind: "chinese", name: "Китайские рестораны и супермаркет на Буюк Ипак Йули", minutes: 8 },
+      ],
+      sale: {
+        market: "primary",
+        documents: { title: true, encumbrance: "none" },
+        bankAccredited: true,
+        partnerBanks: ["Ipoteka-bank", "Hamkorbank", "Asakabank"],
+        installment: { months: 24, downPct: 30, interestFree: true },
+      },
+      international: { languages: ["ru", "uz", "en", "zh"], wechat: "silkx_tashkent", payments: ["cash", "visa", "unionpay", "swift"] },
+    },
   },
   {
     id: "mirabad-heights",
@@ -49,6 +68,25 @@ export const MOCK_PROPERTIES: readonly Property[] = [
     address: "ул. Амира Темура, 107",
     location: { lat: 41.2932, lng: 69.2771 },
     tour: DEMO_TOUR,
+    details: {
+      building: { yearBuilt: 2026, commissionedYear: 2026, material: "monolith", floors: 24, elevator: true, parking: "underground", ceilingM: 3.2, security: true },
+      utilities: { heating: "central", gas: false, hotWater: "central", internet: true, ac: true },
+      interior: { renovation: "euro", furnished: false, balcony: true, view: "Панорама Tashkent City", windowsFacing: "SE" },
+      nearby: [
+        { kind: "metro", name: "Ойбек", minutes: 6, walk: true },
+        { kind: "business", name: "Tashkent City / Международный бизнес-центр", minutes: 10 },
+        { kind: "mall", name: "Next / Magic City", minutes: 8 },
+        { kind: "hospital", name: "Akfa Medline", minutes: 12 },
+      ],
+      sale: {
+        market: "primary",
+        documents: { title: true, encumbrance: "none" },
+        bankAccredited: true,
+        partnerBanks: ["Kapitalbank", "NBU"],
+        installment: { months: 18, downPct: 40, interestFree: true },
+      },
+      international: { languages: ["ru", "en", "zh", "ko", "tr"], wechat: "mirabad_heights", payments: ["cash", "visa", "unionpay", "alipay", "swift"] },
+    },
   },
   {
     id: "yunusabad-park",
@@ -65,6 +103,24 @@ export const MOCK_PROPERTIES: readonly Property[] = [
     category: "apartment",
     address: "Юнусабад, 11-й квартал",
     location: { lat: 41.3662, lng: 69.2884 },
+    details: {
+      building: { yearBuilt: 2027, material: "monolith", floors: 12, elevator: true, parking: "underground", ceilingM: 2.9, security: true },
+      utilities: { heating: "gas-boiler", gas: true, hotWater: "boiler", internet: true },
+      interior: { renovation: "none", furnished: false, balcony: true, windowsFacing: "E" },
+      nearby: [
+        { kind: "school", name: "Школа во дворе комплекса", minutes: 2, walk: true },
+        { kind: "metro", name: "Шахристан", minutes: 12, walk: true },
+        { kind: "bazaar", name: "Юнусабадский базар", minutes: 7 },
+      ],
+      sale: {
+        market: "primary",
+        documents: { title: true, encumbrance: "none" },
+        bankAccredited: true,
+        partnerBanks: ["Orient Finans Bank", "InfinBank"],
+        installment: { months: 36, downPct: 20, interestFree: false },
+      },
+      international: { languages: ["ru", "uz"], payments: ["cash", "card-uz"] },
+    },
   },
   {
     id: "chilanzar-avenue",
@@ -81,6 +137,21 @@ export const MOCK_PROPERTIES: readonly Property[] = [
     category: "apartment",
     address: "Чиланзар, 9-й квартал",
     location: { lat: 41.2761, lng: 69.2041 },
+    details: {
+      building: { yearBuilt: 2019, commissionedYear: 2019, material: "panel", floors: 9, elevator: true, parking: "yard" },
+      utilities: { heating: "central", gas: true, hotWater: "central", internet: true },
+      interior: { renovation: "basic", furnished: false, balcony: false, windowsFacing: "W" },
+      nearby: [
+        { kind: "metro", name: "Новза", minutes: 4, walk: true },
+        { kind: "bazaar", name: "Чиланзарский базар", minutes: 10 },
+      ],
+      sale: {
+        market: "secondary",
+        documents: { title: true, encumbrance: "pledge" },
+        bankAccredited: false,
+      },
+      international: { languages: ["ru", "uz"], payments: ["cash"] },
+    },
   },
   {
     id: "yakkasaray-loft",
@@ -98,6 +169,24 @@ export const MOCK_PROPERTIES: readonly Property[] = [
     address: "ул. Шота Руставели, 12",
     location: { lat: 41.2861, lng: 69.2552 },
     tour: DEMO_TOUR,
+    details: {
+      building: { yearBuilt: 2025, commissionedYear: 2025, material: "brick", floors: 7, elevator: true, parking: "underground", ceilingM: 3.2, security: true },
+      utilities: { heating: "gas-boiler", gas: true, hotWater: "boiler", internet: true, ac: true },
+      interior: { renovation: "designer", furnished: true, appliances: ["кухня Bosch", "посудомойка", "стиральная машина"], balcony: true, view: "Тихий двор", windowsFacing: "S" },
+      nearby: [
+        { kind: "metro", name: "Ойбек", minutes: 9, walk: true },
+        { kind: "park", name: "Парк Бабура", minutes: 10 },
+        { kind: "chinese", name: "Посольство и бизнес-офисы КНР рядом с Яккасараем", minutes: 12 },
+      ],
+      sale: {
+        market: "primary",
+        documents: { title: true, encumbrance: "unknown" },
+        bankAccredited: true,
+        partnerBanks: ["Ipoteka-bank"],
+        installment: { months: 12, downPct: 50, interestFree: true },
+      },
+      international: { languages: ["ru", "en", "zh"], wechat: "yakkasaray_loft", payments: ["cash", "visa", "unionpay", "wechatpay"] },
+    },
   },
   // ---------- Аренда ----------
   {
@@ -116,6 +205,17 @@ export const MOCK_PROPERTIES: readonly Property[] = [
     address: "ул. Осиё, 4 (м. «Минор»)",
     location: { lat: 41.3253, lng: 69.2865 },
     tour: DEMO_TOUR,
+    details: {
+      building: { yearBuilt: 2018, material: "brick", floors: 9, elevator: true, parking: "yard" },
+      utilities: { heating: "central", gas: true, hotWater: "central", internet: true, ac: true },
+      interior: { renovation: "euro", furnished: true, appliances: ["холодильник", "стиральная машина", "Smart TV"], balcony: true, windowsFacing: "SE" },
+      nearby: [
+        { kind: "metro", name: "Минор", minutes: 3, walk: true },
+        { kind: "mall", name: "Samarqand Darvoza", minutes: 15 },
+      ],
+      rent: { minTermMonths: 6, depositMonths: 1, prepayMonths: 1, utilitiesIncluded: false, registrationHelp: true, pets: false, kids: true, contract: "notarized" },
+      international: { languages: ["ru", "uz", "en"], payments: ["cash", "card-uz", "visa"] },
+    },
   },
   {
     id: "rent-mu-studio",
@@ -134,6 +234,19 @@ export const MOCK_PROPERTIES: readonly Property[] = [
     address: "ул. Университетская, 2",
     location: { lat: 41.3482, lng: 69.3418 },
     tour: DEMO_TOUR,
+    details: {
+      building: { yearBuilt: 2021, material: "monolith", floors: 12, elevator: true, parking: "yard" },
+      utilities: { heating: "central", gas: false, hotWater: "central", internet: true, ac: true },
+      interior: { renovation: "euro", furnished: true, appliances: ["холодильник", "стиральная машина", "рабочий стол"], balcony: false, windowsFacing: "S" },
+      nearby: [
+        { kind: "university", name: "НУУз и ТУИТ", minutes: 6, walk: true },
+        { kind: "university", name: "Westminster / Inha University", minutes: 15 },
+        { kind: "metro", name: "Буюк Ипак Йули", minutes: 9, walk: true },
+        { kind: "chinese", name: "Китайская кухня и магазины", minutes: 8 },
+      ],
+      rent: { minTermMonths: 10, depositMonths: 1, prepayMonths: 2, utilitiesIncluded: true, registrationHelp: true, pets: false, kids: false, students: true, contract: "simple" },
+      international: { languages: ["ru", "uz", "en", "zh", "ko"], wechat: "silkx_students", payments: ["cash", "card-uz", "visa", "unionpay", "alipay"] },
+    },
   },
   {
     id: "rent-shaykhantahur-4k",
@@ -151,6 +264,18 @@ export const MOCK_PROPERTIES: readonly Property[] = [
     address: "ул. Себзор, 21",
     location: { lat: 41.3256, lng: 69.2308 },
     tour: DEMO_TOUR,
+    details: {
+      building: { yearBuilt: 2015, material: "brick", floors: 2, elevator: false, parking: "yard", ceilingM: 3.4, security: true },
+      utilities: { heating: "gas-boiler", gas: true, hotWater: "boiler", internet: true, ac: true },
+      interior: { renovation: "designer", furnished: true, appliances: ["полностью оборудованная кухня", "посудомойка", "сушилка"], balcony: true, view: "Терраса с видом на старый город", windowsFacing: "S" },
+      nearby: [
+        { kind: "bazaar", name: "Чорсу", minutes: 8 },
+        { kind: "metro", name: "Гафур Гулям", minutes: 10, walk: true },
+        { kind: "business", name: "Посольский район", minutes: 12 },
+      ],
+      rent: { minTermMonths: 12, depositMonths: 2, prepayMonths: 3, utilitiesIncluded: false, registrationHelp: true, pets: true, kids: true, contract: "notarized" },
+      international: { languages: ["ru", "en", "zh", "tr"], wechat: "silkx_premium", payments: ["cash", "visa", "unionpay", "swift"] },
+    },
   },
   {
     id: "rent-chilanzar-3k",
@@ -167,6 +292,17 @@ export const MOCK_PROPERTIES: readonly Property[] = [
     category: "apartment",
     address: "Чиланзар, 19-й квартал",
     location: { lat: 41.2731, lng: 69.1985 },
+    details: {
+      building: { yearBuilt: 2010, material: "panel", floors: 9, elevator: true, parking: "yard" },
+      utilities: { heating: "central", gas: true, hotWater: "central", internet: true, ac: true },
+      interior: { renovation: "basic", furnished: true, balcony: true, windowsFacing: "E" },
+      nearby: [
+        { kind: "park", name: "Парк Чиланзар", minutes: 4, walk: true },
+        { kind: "school", name: "Школа №271", minutes: 6, walk: true },
+      ],
+      rent: { minTermMonths: 12, depositMonths: 1, prepayMonths: 1, utilitiesIncluded: false, registrationHelp: false, pets: false, kids: true, contract: "simple" },
+      international: { languages: ["ru", "uz"], payments: ["cash", "card-uz"] },
+    },
   },
 ];
 
