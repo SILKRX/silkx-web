@@ -1,0 +1,269 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================================================
+   SILKX — Premium Dark. Тема одна (тёмная), поэтому токены заданы и в :root,
+   и в .dark — shadcn-компоненты корректно работают в обоих случаях.
+   HSL-значения посчитаны из брендовых HEX.
+   ============================================================================= */
+@layer base {
+  :root,
+  .dark {
+    --background: 240 3.4% 11.4%;          /* #1C1C1E graphite */
+    --foreground: 0 0% 100%;               /* #FFFFFF */
+
+    --card: 240 2.8% 14.1%;                /* #232325 */
+    --card-foreground: 0 0% 100%;
+
+    --popover: 240 2.8% 14.1%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 35 31.3% 61.8%;             /* #BCA37F coffee gold */
+    --primary-foreground: 240 3.4% 11.4%;  /* тёмный текст на золоте: контраст ≈ 8:1 */
+
+    --secondary: 210 38.1% 16.5%;          /* #1A2A3A deep blue */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 240 2.8% 14.1%;
+    --muted-foreground: 240 5% 64.9%;      /* #A1A1AA */
+
+    --accent: 210 38.1% 16.5%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 55% 42%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 240 3% 20%;
+    --input: 240 3% 20%;
+    --ring: 35 31.3% 61.8%;
+
+    --radius: 0.75rem;
+
+    /* Высота sticky-панели CTA — чтобы контент не прятался под ней */
+    --cta-bar-height: 4.5rem;
+
+    color-scheme: dark;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    min-height: 100dvh;                      /* dvh — корректно с адресной строкой мобильного Safari */
+    overscroll-behavior-y: none;             /* без «резинки», ломающей sticky-панель */
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-semibold tracking-tight text-heading;
+  }
+
+  p {
+    @apply text-body;
+  }
+
+  /* Видимый фокус только для клавиатуры (a11y), без колец при тапе */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* iOS зумит страницу, если font-size инпута < 16px — запрещаем на мобильных */
+  input, select, textarea {
+    font-size: 16px;
+  }
+  @media (min-width: 768px) {
+    input, select, textarea {
+      font-size: inherit;
+    }
+  }
+
+  /* Убираем стрелки у type=number */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* Тёмный автокомплит Chrome вместо жёлтой заливки */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: hsl(var(--foreground));
+    -webkit-box-shadow: 0 0 0 1000px hsl(var(--card)) inset;
+    caret-color: hsl(var(--foreground));
+    transition: background-color 9999s ease-out 0s;
+  }
+
+  ::selection {
+    background: rgba(188, 163, 127, 0.35);
+    color: #ffffff;
+  }
+}
+
+@layer components {
+  /* Панель «финансового терминала» */
+  .terminal-panel {
+    @apply rounded-lg border border-white/5 bg-card shadow-panel;
+  }
+
+  /* Цифры цен/лет не «прыгают» при обновлении */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Скелетон-загрузчик с шиммером */
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-white/5;
+  }
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  }
+}
+
+@layer utilities {
+  /* Горизонтальные карусели: нативный скролл + snap, без JS-библиотек */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .snap-carousel {
+    @apply flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 scrollbar-none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  /* Отступ под sticky-CTA с учётом home-indicator iPhone */
+  .pb-cta-safe {
+    padding-bottom: calc(var(--cta-bar-height) + env(safe-area-inset-bottom) + 1rem);
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* =============================================================================
+   Hero «Ночной Ташкент» (components/home/TashkentSky.tsx)
+   В SVG CSS-пиксели = единицы viewBox, поэтому translateX считается в координатах сцены.
+   ============================================================================= */
+.sky-star {
+  animation: sky-twinkle 4s ease-in-out infinite;
+}
+@keyframes sky-twinkle {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+.sky-flock {
+  animation: sky-fly 40s linear infinite;
+}
+@keyframes sky-fly {
+  from { transform: translateX(-240px); }
+  to { transform: translateX(1700px); }
+}
+
+.sky-flock-bob {
+  animation: sky-bob 7s ease-in-out infinite;
+}
+@keyframes sky-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+
+.sky-bird {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: sky-flap 0.7s ease-in-out infinite;
+}
+@keyframes sky-flap {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(-0.55); }
+}
+
+.sky-haze {
+  animation: sky-drift 90s linear infinite alternate;
+}
+@keyframes sky-drift {
+  from { transform: translateX(-200px); }
+  to { transform: translateX(200px); }
+}
+
+.sky-window {
+  animation: sky-window-glow 9s ease-in-out infinite;
+}
+@keyframes sky-window-glow {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 0.55; }
+}
+.sky-window-flicker {
+  animation: sky-window-flick 12s steps(1, end) infinite;
+}
+@keyframes sky-window-flick {
+  0%, 62%, 100% { opacity: 0.9; }
+  63%, 78% { opacity: 0.08; }
+}
+
+.sky-beacon {
+  animation: sky-beacon 2.4s ease-in-out infinite;
+}
+@keyframes sky-beacon {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* Leaflet: тёмная тема контролов под бренд */
+.leaflet-container {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  background: #141416;
+}
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  background: #232325 !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+.leaflet-control-attribution {
+  background: rgba(28, 28, 30, 0.75) !important;
+  color: #a1a1aa !important;
+}
+.leaflet-control-attribution a {
+  color: #bca37f !important;
+}
+
+/* Уважаем системную настройку «уменьшить движение» */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
