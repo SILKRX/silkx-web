@@ -11,7 +11,7 @@ const img = (photoId: string): string =>
 // Если реальных файлов нет — показываются сгенерированные комнаты (fallbackSrc).
 // Собственники загружают свои — снятые камерой 360° (Insta360, Ricoh Theta) или приложением-«сферой» на телефоне.
 export const DEMO_TOUR: TourScene[] = [
-  { id: "living", title: "Гостиная", src: "/tours/real/living.jpg", fallbackSrc: "/tours/living.jpg" },
+  { id: "living", title: "Гостиная и столовая", src: "/tours/real/living.jpg", fallbackSrc: "/tours/living.jpg" },
   { id: "bedroom", title: "Спальня", src: "/tours/real/bedroom.jpg", fallbackSrc: "/tours/bedroom.jpg" },
   { id: "kitchen", title: "Кухня", src: "/tours/real/kitchen.jpg", fallbackSrc: "/tours/kitchen.jpg" },
 ];
