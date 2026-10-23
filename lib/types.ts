@@ -64,6 +64,8 @@ export interface TourScene {
   id: string;
   title: string;
   src: string;
+  /** Запасная панорама, если основная не загрузилась (например, файл ещё не добавлен). */
+  fallbackSrc?: string;
 }
 
 export interface Property {

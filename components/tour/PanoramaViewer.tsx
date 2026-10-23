@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 /**
  * 3D-тур 360° на чистом WebGL — без three.js и других зависимостей (~0 КБ к бандлу сверх кода).
  * Принимает равнопромежуточные (equirectangular, 2:1) панорамы — формат режима «Панорама 360°»
- * в Google Street View / камер Insta360 / Ricoh Theta.
+ * камер Insta360 / Ricoh Theta и приложений сферических панорам.
  *
  * Управление: перетаскивание (мышь/палец), колесо и щипок — зум, стрелки и +/- с клавиатуры,
  * медленное автовращение до первого касания, полноэкранный режим.
@@ -301,6 +301,13 @@ export function PanoramaViewer({ scenes, initialSceneId, className, compact = fa
     setStatus("loading");
 
     loadImage(scene.src, controller.signal)
+      .catch((err: unknown) => {
+        // Основная панорама недоступна — пробуем запасную (если есть)
+        if (scene.fallbackSrc && !(err instanceof DOMException && err.name === "AbortError")) {
+          return loadImage(scene.fallbackSrc, controller.signal);
+        }
+        throw err;
+      })
       .then((img) => {
         const { gl } = r;
         const tex = gl.createTexture();

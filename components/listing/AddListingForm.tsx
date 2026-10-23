@@ -688,7 +688,7 @@ export function AddListingForm() {
           <details className="rounded-lg border border-white/10 bg-background p-4 text-sm">
             <summary className="cursor-pointer font-medium text-heading">Как снять панораму 360° на телефон?</summary>
             <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-body">
-              <li>Установите бесплатное приложение с режимом «Сфера/Photo Sphere» (например, Google Street View или Panorama 360) либо используйте камеру 360°.</li>
+              <li>Лучше всего — камера 360° (Insta360, Ricoh Theta): один кадр снимает всю комнату. Без камеры подойдёт приложение для сферических панорам (ищите в магазине приложений «360 panorama» / «photo sphere»).</li>
               <li>Встаньте в центр комнаты, включите свет, откройте шторы.</li>
               <li>Снимайте по подсказкам приложения, поворачиваясь на месте, — телефон держите на уровне глаз.</li>
               <li>Сохраните результат: это фото с пропорциями 2:1 (например, 8000×4000). Загрузите его сюда.</li>

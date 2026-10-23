@@ -53,3 +53,9 @@ git checkout -b feature/name   # work on a branch
 git add . && git commit -m "what changed"
 git push -u origin feature/name   # then open a Pull Request on GitHub
 ```
+
+## 3D tour photos
+
+Demo tours use real 360° interior photos from [Poly Haven](https://polyhaven.com) (CC0 license: free for any use, no attribution required).
+Download them once: `powershell -ExecutionPolicy Bypass -File scripts\get-demo-tours.ps1` (saves to `public/tours/real/`).
+If the files are missing, the tour falls back to the generated rooms in `public/tours/`.

@@ -6,12 +6,14 @@ import type { Property, PropertyStatus, TourScene } from "@/lib/types";
 const img = (photoId: string): string =>
   `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=800&q=70`;
 
-// Демо-тур: 360°-панорамы лежат в /public/tours (сгенерированы, CC0).
-// Собственники загружают свои — снятые в режиме «Панорама 360°» на телефоне или камерой 360.
+// Демо-тур: реальные 360°-фотографии интерьеров с Poly Haven (лицензия CC0 — можно для любых целей,
+// включая коммерческие, без указания автора): Cayley Interior, Cabin, Blinds. Файлы: /public/tours/real/.
+// Если реальных файлов нет — показываются сгенерированные комнаты (fallbackSrc).
+// Собственники загружают свои — снятые камерой 360° (Insta360, Ricoh Theta) или приложением-«сферой» на телефоне.
 export const DEMO_TOUR: TourScene[] = [
-  { id: "living", title: "Гостиная", src: "/tours/living.jpg" },
-  { id: "bedroom", title: "Спальня", src: "/tours/bedroom.jpg" },
-  { id: "kitchen", title: "Кухня", src: "/tours/kitchen.jpg" },
+  { id: "living", title: "Гостиная", src: "/tours/real/living.jpg", fallbackSrc: "/tours/living.jpg" },
+  { id: "bedroom", title: "Спальня", src: "/tours/real/bedroom.jpg", fallbackSrc: "/tours/bedroom.jpg" },
+  { id: "kitchen", title: "Кухня", src: "/tours/real/kitchen.jpg", fallbackSrc: "/tours/kitchen.jpg" },
 ];
 
 export const MOCK_PROPERTIES: readonly Property[] = [
