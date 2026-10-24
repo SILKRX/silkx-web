@@ -23,6 +23,8 @@ Open http://localhost:3000
 | `/add` | Owners add a property: category, map pin, photos, 360° panoramas → moderation |
 | `/api/listings`, `/api/listings/upload` | Listing submission + per-file image upload |
 | `/api/assistant` | SILKX AI: voice/chat assistant in UZ · RU · EN · ZH · KO · TR |
+| `GET /api/properties` | Property list for the Telegram bot / external clients. Filters: `type`, `district`, `rooms`, `maxPrice`, `currency`, `q`, `limit` |
+| `GET /api/properties/:id` | Full property: details, 3D tour, mortgage check |
 
 ## SILKX AI (voice assistant)
 
