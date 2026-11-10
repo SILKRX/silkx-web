@@ -17,7 +17,7 @@ function CatalogSkeleton() {
       <div className="skeleton h-12 w-full md:h-[520px] md:w-1/4" />
       <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:w-3/4 lg:grid-cols-3">
         {Array.from({ length: 6 }, (_, i) => (
-          <div key={i} className="overflow-hidden rounded-lg border border-white/5 bg-card">
+          <div key={i} className="overflow-hidden rounded-lg border border-line/5 bg-card">
             <div className="skeleton aspect-[4/3] rounded-none" />
             <div className="space-y-3 p-4">
               <div className="skeleton h-4 w-3/4" />

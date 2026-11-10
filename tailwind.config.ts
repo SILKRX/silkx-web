@@ -17,18 +17,21 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // --- Бренд SILKX (прямые значения для точечного использования) ---
+        // --- Бренд SILKX ---
+        // graphite — всегда тёмный (текст на золотых кнопках); остальные токены зависят от темы
         graphite: "#1C1C1E",
-        "deep-blue": "#1A2A3A",
-        panel: "#232325",
+        "deep-blue": "hsl(var(--deep-blue) / <alpha-value>)",
+        panel: "hsl(var(--panel) / <alpha-value>)",
         gold: {
           DEFAULT: "#BCA37F",
           hover: "#C9B391",
           active: "#A88F6C",
           muted: "rgba(188, 163, 127, 0.12)",
         },
-        heading: "#FFFFFF",
-        body: "#A1A1AA",
+        heading: "hsl(var(--heading) / <alpha-value>)",
+        body: "hsl(var(--body) / <alpha-value>)",
+        // Тонкие линии и подложки: белый в тёмной теме, графит — в светлой (border-line/10, bg-line/5)
+        line: "rgb(var(--line) / <alpha-value>)",
 
         // --- Семантические токены shadcn/ui (через CSS-переменные) ---
         border: "hsl(var(--border))",
@@ -69,6 +72,16 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      // Золотой ТЕКСТ темнее в светлой теме (контраст ≥ 4.5:1); фон/рамки — прежнее золото
+      textColor: {
+        gold: {
+          DEFAULT: "rgb(var(--gold-text) / <alpha-value>)",
+          hover: "rgb(var(--gold-text-hover) / <alpha-value>)",
+          active: "rgb(var(--gold-text-hover) / <alpha-value>)",
+          // Золото для текста поверх фото/тёмных оверлеев — одинаковое в обеих темах
+          bright: "#BCA37F",
+        },
+      },
       fontFamily: {
         heading: ["var(--font-montserrat)", ...fontFamily.sans],
         sans: ["var(--font-inter)", ...fontFamily.sans],
@@ -84,7 +97,7 @@ const config: Config = {
         "safe-t": "env(safe-area-inset-top)",
       },
       boxShadow: {
-        panel: "0 8px 30px rgba(0, 0, 0, 0.35)",
+        panel: "var(--shadow-panel)",
         "gold-glow": "0 0 0 1px rgba(188, 163, 127, 0.35), 0 8px 24px rgba(188, 163, 127, 0.15)",
       },
       keyframes: {
@@ -99,11 +112,16 @@ const config: Config = {
         shimmer: {
           "100%": { transform: "translateX(100%)" },
         },
+        "ai-pulse": {
+          "0%": { transform: "scale(1)", opacity: "0.6" },
+          "70%, 100%": { transform: "scale(1.35)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         shimmer: "shimmer 1.6s infinite",
+        "ai-pulse": "ai-pulse 2.4s cubic-bezier(0, 0, 0.2, 1) infinite",
       },
     },
   },

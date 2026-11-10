@@ -123,7 +123,7 @@ export function CatalogView() {
   const hints = PRICE_HINTS[filters.type];
 
   const inputClass =
-    "h-12 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-heading tabular placeholder:text-body/50 transition-colors hover:border-white/20 focus:border-gold/60 focus:outline-none";
+    "h-12 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-heading tabular placeholder:text-body/50 transition-colors hover:border-line/20 focus:border-gold/60 focus:outline-none";
 
   return (
     <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-start">
@@ -193,7 +193,7 @@ export function CatalogView() {
                       "flex h-11 items-center justify-center rounded-lg border text-xs font-semibold transition-colors",
                       active
                         ? "border-gold bg-gold text-graphite"
-                        : "border-input bg-background text-body hover:border-white/20 hover:text-heading",
+                        : "border-input bg-background text-body hover:border-line/20 hover:text-heading",
                     )}
                   >
                     {o.value === 0 ? "Ст." : o.label}
@@ -244,7 +244,7 @@ export function CatalogView() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 text-sm font-medium text-body transition-colors hover:border-white/20 hover:text-heading"
+                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-line/10 text-sm font-medium text-body transition-colors hover:border-line/20 hover:text-heading"
               >
                 <RotateCcw className="h-4 w-4" aria-hidden="true" />
                 Сбросить фильтры

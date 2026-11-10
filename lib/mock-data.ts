@@ -7,7 +7,7 @@ const img = (photoId: string): string =>
   `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=800&q=70`;
 
 // Демо-тур: реальные 360°-фотографии интерьеров с Poly Haven (лицензия CC0 — можно для любых целей,
-// включая коммерческие, без указания автора): Cayley Interior, Cabin, Blinds. Файлы: /public/tours/real/.
+// включая коммерческие, без указания автора): cayley_interior (гостиная), lythwood_room (спальня), kiara_interior (кухня). Файлы: /public/tours/real/.
 // Если реальных файлов нет — показываются сгенерированные комнаты (fallbackSrc).
 // Собственники загружают свои — снятые камерой 360° (Insta360, Ricoh Theta) или приложением-«сферой» на телефоне.
 export const DEMO_TOUR: TourScene[] = [

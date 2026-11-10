@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Loader2, MessageCircle, Mic, SendHorizonal, Square, Volume2, VolumeX, X } from "lucide-react";
+import { Bot, Loader2, Mic, SendHorizonal, Sparkles, Square, Volume2, VolumeX, X } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
@@ -34,6 +34,13 @@ interface ChatMessage {
 }
 
 const MAX_MESSAGE_LENGTH = 500;
+
+/** Событие «открыть SILKX AI» — см. openAssistant(). */
+export const OPEN_ASSISTANT_EVENT = "silkx:open-assistant";
+
+export function openAssistant(): void {
+  window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT));
+}
 const LANG_STORAGE_KEY = "silkx:assistant-lang";
 
 /** BCP-47 для распознавания и озвучки. */
@@ -64,6 +71,7 @@ const UI: Record<
     error: string;
     open: string;
     close: string;
+    privacy: string;
     suggestions: string[];
   }
 > = {
@@ -83,6 +91,7 @@ const UI: Record<
     error: "Не удалось получить ответ. Проверьте интернет и попробуйте ещё раз.",
     open: "Открыть SILKX AI",
     close: "Закрыть",
+    privacy: "Отвечает ИИ (Anthropic, США). Не пишите паспортные и платёжные данные. Голос распознаёт ваш браузер.",
     suggestions: ["Квартира студенту у вузов", "Можно купить в ипотеку?", "Варианты для клиента из Китая"],
   },
   uz: {
@@ -101,6 +110,7 @@ const UI: Record<
     error: "Javob olinmadi. Internetni tekshirib, qayta urinib ko'ring.",
     open: "SILKX AI ni ochish",
     close: "Yopish",
+    privacy: "Javobni sun'iy intellekt beradi (Anthropic, AQSh). Pasport va to'lov ma'lumotlarini yozmang. Ovozni brauzeringiz taniydi.",
     suggestions: ["Talaba uchun universitet yonida", "Ipotekaga olsa bo'ladimi?", "Xitoylik mijoz uchun"],
   },
   en: {
@@ -119,6 +129,7 @@ const UI: Record<
     error: "Couldn't get an answer. Check your connection and try again.",
     open: "Open SILKX AI",
     close: "Close",
+    privacy: "Answers come from AI (Anthropic, USA). Don't share passport or payment details. Voice is recognized by your browser.",
     suggestions: ["Student flat near universities", "Can I buy it with a mortgage?", "Options for a client from China"],
   },
   zh: {
@@ -137,6 +148,7 @@ const UI: Record<
     error: "无法获取回答，请检查网络后重试。",
     open: "打开 SILKX AI",
     close: "关闭",
+    privacy: "由人工智能回答（Anthropic，美国）。请勿发送证件或支付信息。语音由您的浏览器识别。",
     suggestions: ["大学附近的学生公寓", "这套房可以贷款吗？", "适合中国客户的房源"],
   },
   ko: {
@@ -155,6 +167,7 @@ const UI: Record<
     error: "답변을 받지 못했습니다. 인터넷 연결을 확인하고 다시 시도하세요.",
     open: "SILKX AI 열기",
     close: "닫기",
+    privacy: "AI(Anthropic, 미국)가 답변합니다. 여권·결제 정보는 보내지 마세요. 음성은 브라우저가 인식합니다.",
     suggestions: ["대학 근처 학생용 집", "대출로 살 수 있나요?", "중국 고객용 매물"],
   },
   tr: {
@@ -173,6 +186,7 @@ const UI: Record<
     error: "Cevap alınamadı. İnternetinizi kontrol edip tekrar deneyin.",
     open: "SILKX AI'yi aç",
     close: "Kapat",
+    privacy: "Yanıtları yapay zekâ verir (Anthropic, ABD). Pasaport ve ödeme bilgisi paylaşmayın. Sesi tarayıcınız tanır.",
     suggestions: ["Üniversite yakını öğrenci evi", "Krediyle alabilir miyim?", "Çinli müşteri için seçenekler"],
   },
 };
@@ -263,6 +277,13 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
   const titleId = useId();
   const t = UI[lang];
   const micSupported = typeof window !== "undefined" && getRecognitionCtor() !== null;
+
+  // Открыть чат из любого места сайта (кнопка «AI-ассистент 24/7» в Hero и т. п.)
+  useEffect(() => {
+    const onOpen = () => setIsOpen(true);
+    window.addEventListener(OPEN_ASSISTANT_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_ASSISTANT_EVENT, onOpen);
+  }, []);
 
   // Язык: сохранённый или язык браузера (после монтирования — без рассинхрона SSR)
   useEffect(() => setLang(detectInitialLang()), []);
@@ -447,12 +468,12 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
           onKeyDown={onPanelKeyDown}
           className={cn(
             "flex h-[34rem] w-[calc(100vw-2rem)] max-w-[23rem] flex-col overflow-hidden rounded-xl",
-            "max-h-[calc(100dvh-7rem)] border border-white/10 bg-card shadow-panel",
+            "max-h-[calc(100dvh-7rem)] border border-line/10 bg-card shadow-panel",
             "animate-in fade-in-0 slide-in-from-bottom-4 zoom-in-95 duration-200",
           )}
         >
           {/* Заголовок */}
-          <header className="space-y-2.5 border-b border-white/5 bg-deep-blue px-4 py-3">
+          <header className="space-y-2.5 border-b border-line/5 bg-deep-blue px-4 py-3">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
                 <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gold-muted">
@@ -477,7 +498,7 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
                   aria-label={autoSpeak ? t.speakOff : t.speakOn}
                   title={autoSpeak ? t.speakOff : t.speakOn}
                   className={cn(
-                    "rounded-md p-1.5 transition-colors hover:bg-white/5",
+                    "rounded-md p-1.5 transition-colors hover:bg-line/5",
                     autoSpeak ? "text-gold" : "text-body hover:text-heading",
                   )}
                 >
@@ -487,7 +508,7 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
                   type="button"
                   onClick={close}
                   aria-label={t.close}
-                  className="rounded-md p-1.5 text-body transition-colors hover:bg-white/5 hover:text-heading"
+                  className="rounded-md p-1.5 text-body transition-colors hover:bg-line/5 hover:text-heading"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -509,7 +530,7 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
                   }}
                   className={cn(
                     "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors",
-                    lang === l ? "bg-gold text-graphite" : "bg-white/5 text-body hover:text-heading",
+                    lang === l ? "bg-gold text-graphite" : "bg-line/5 text-body hover:text-heading",
                   )}
                 >
                   {LANG_LABELS[l]}
@@ -527,7 +548,7 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
                     lang={m.role === "assistant" ? lang : undefined}
                     className={cn(
                       "whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm leading-relaxed",
-                      m.role === "user" ? "rounded-br-sm bg-gold text-graphite" : "rounded-bl-sm bg-white/5 text-heading",
+                      m.role === "user" ? "rounded-br-sm bg-gold text-graphite" : "rounded-bl-sm bg-line/5 text-heading",
                     )}
                   >
                     {m.text}
@@ -553,9 +574,15 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
                         >
                           <span className="truncate font-medium text-heading">{it.title}</span>
                           <span className="shrink-0 font-semibold text-gold">
-                            {it.currency === "USD" ? "$" : ""}
-                            {formatNumber(it.price)}
-                            {it.currency === "UZS" ? " сум" : ""}
+                            {it.price > 0 ? (
+                              <>
+                                {it.currency === "USD" ? "$" : ""}
+                                {formatNumber(it.price)}
+                                {it.currency === "UZS" ? " сум" : ""}
+                              </>
+                            ) : (
+                              "→"
+                            )}
                           </span>
                         </Link>
                       </li>
@@ -573,7 +600,7 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
                     key={s}
                     type="button"
                     onClick={() => void send(s)}
-                    className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-body transition-colors hover:border-gold/50 hover:text-heading"
+                    className="rounded-full border border-line/10 px-3 py-1.5 text-xs text-body transition-colors hover:border-gold/50 hover:text-heading"
                   >
                     {s}
                   </button>
@@ -583,7 +610,7 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
 
             {isTyping && (
               <div className="flex justify-start" aria-label="SILKX AI…">
-                <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-white/5 px-3.5 py-3">
+                <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-line/5 px-3.5 py-3">
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-body [animation-delay:-0.3s]" />
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-body [animation-delay:-0.15s]" />
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-body" />
@@ -593,13 +620,19 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
           </div>
 
           {notice && (
-            <p className="border-t border-white/5 bg-gold-muted px-4 py-2 text-[11px] text-gold" role="status">
+            <p className="border-t border-line/5 bg-gold-muted px-4 py-2 text-[11px] text-gold" role="status">
               {notice}
             </p>
           )}
 
           {/* Ввод */}
-          <form onSubmit={handleSubmit} className="flex items-center gap-2 border-t border-white/5 p-3">
+          <p className="border-t border-line/5 px-3 pt-2 text-[11px] leading-snug text-body/80">
+            {t.privacy}{" "}
+            <Link href="/privacy#third-parties" aria-label="Подробнее о передаче данных" className="text-gold underline-offset-2 hover:underline">
+              ↗
+            </Link>
+          </p>
+          <form onSubmit={handleSubmit} className="flex items-center gap-2 p-3">
             <button
               type="button"
               onClick={listening ? stopListening : startListening}
@@ -608,7 +641,7 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
               title={micSupported ? (listening ? t.stopMic : t.mic) : t.noMic}
               className={cn(
                 "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border transition-colors",
-                listening ? "border-destructive bg-destructive text-white" : "border-white/10 text-heading hover:border-gold/60",
+                listening ? "border-destructive bg-destructive text-white" : "border-line/10 text-heading hover:border-gold/60",
                 !micSupported && "opacity-50",
               )}
             >
@@ -656,9 +689,31 @@ export function AIAssistant({ className, propertyId }: AIAssistantProps) {
         aria-expanded={isOpen}
         aria-controls={isOpen ? panelId : undefined}
         aria-label={isOpen ? t.close : t.open}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-gold text-graphite shadow-panel transition-[transform,background-color] duration-200 hover:scale-105 hover:bg-gold-hover active:scale-95"
+        className={cn(
+          "group relative flex h-14 items-center justify-center gap-2 rounded-full bg-gradient-to-br from-gold-hover via-gold to-gold-active text-graphite shadow-gold-glow transition-transform duration-200 hover:scale-105 active:scale-95",
+          isOpen ? "w-14" : "pl-4 pr-5",
+        )}
       >
-        {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        {/* Мягкое золотое свечение — привлекает внимание, пока чат закрыт */}
+        {!isOpen && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-gold/50 animate-ai-pulse motion-reduce:hidden"
+          />
+        )}
+        {isOpen ? (
+          <X className="h-6 w-6" />
+        ) : (
+          <>
+            <Sparkles className="h-5 w-5 transition-transform duration-300 group-hover:rotate-12" aria-hidden="true" />
+            <span className="font-heading text-sm font-bold tracking-wide">SILKX AI</span>
+            {/* Индикатор «онлайн» */}
+            <span aria-hidden="true" className="absolute right-1 top-1 flex h-3 w-3">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping motion-reduce:hidden" />
+              <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-graphite bg-emerald-400" />
+            </span>
+          </>
+        )}
       </button>
     </div>
   );

@@ -56,7 +56,7 @@ export function SocialLinks({ className, size = "md" }: { className?: string; si
                 role="img"
                 aria-label={`${label} — скоро`}
                 title={`${label} — скоро`}
-                className={cn(box, "flex items-center justify-center rounded-full border border-white/10 text-body/60")}
+                className={cn(box, "flex items-center justify-center rounded-full border border-line/10 text-body/60")}
               >
                 {icon}
               </span>

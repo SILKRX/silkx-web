@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import type { ReactNode } from "react";
 
+import { CookieBanner } from "@/components/CookieBanner";
 import { Toaster } from "@/components/ui/sonner";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 import "./globals.css";
@@ -44,8 +46,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1C1C1E",
-  colorScheme: "dark",
+  themeColor: "#FAF8F4", // обновляется переключателем темы
+  colorScheme: "light dark",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover", // доступ к safe-area-inset для sticky-панели
@@ -53,10 +55,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ru" className={cn("dark", montserrat.variable, inter.variable)} suppressHydrationWarning>
+    <html lang="ru" className={cn(montserrat.variable, inter.variable)} suppressHydrationWarning>
+      <head>
+        {/* Тема применяется до отрисовки — без вспышки белого у тех, кто выбрал тёмную */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         {children}
         <Toaster />
+        <CookieBanner />
       </body>
     </html>
   );

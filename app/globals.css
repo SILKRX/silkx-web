@@ -3,15 +3,64 @@
 @tailwind utilities;
 
 /* =============================================================================
-   SILKX — Premium Dark. Тема одна (тёмная), поэтому токены заданы и в :root,
-   и в .dark — shadcn-компоненты корректно работают в обоих случаях.
-   HSL-значения посчитаны из брендовых HEX.
+   SILKX — две темы. По умолчанию светлая (:root), тёмная — класс .dark на <html>
+   (переключатель в шапке, components/ThemeToggle.tsx). Значения — каналы HSL/RGB,
+   чтобы работали модификаторы прозрачности Tailwind (text-heading/80, border-line/10).
    ============================================================================= */
 @layer base {
-  :root,
+  :root {
+    --background: 36 33% 97%;              /* #FAF8F4 тёплый белый */
+    --foreground: 240 3.4% 11.4%;          /* #1C1C1E */
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 3.4% 11.4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 3.4% 11.4%;
+
+    --primary: 35 31.3% 61.8%;             /* #BCA37F coffee gold */
+    --primary-foreground: 240 3.4% 11.4%;
+
+    --secondary: 36 30% 93%;               /* #F3EEE6 шампань */
+    --secondary-foreground: 240 3.4% 11.4%;
+
+    --muted: 36 25% 94%;
+    --muted-foreground: 240 4% 38%;        /* #5E5E66 */
+
+    --accent: 36 30% 93%;
+    --accent-foreground: 240 3.4% 11.4%;
+
+    --destructive: 0 72% 46%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 60% 32%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 36 14% 87%;
+    --input: 36 14% 84%;
+    --ring: 35 31.3% 51%;
+
+    /* Брендовые токены, которые раньше были жёсткими HEX */
+    --heading: 240 3.4% 11.4%;             /* заголовки */
+    --body: 240 4% 38%;                    /* основной текст (контраст ≈ 6.5:1 на белом) */
+    --panel: 36 30% 95%;
+    --deep-blue: 36 24% 89%;
+    --line: 28 28 30;                      /* RGB: тонкие линии/подложки = чёрный с прозрачностью */
+    --gold-text: 138 106 63;               /* #8A6A3F — золото для текста на светлом (≈ 5:1) */
+    --gold-text-hover: 111 84 50;
+    --shadow-panel: 0 1px 2px rgba(28, 28, 30, 0.04), 0 10px 30px rgba(28, 28, 30, 0.07);
+
+    --radius: 0.75rem;
+
+    /* Высота sticky-панели CTA — чтобы контент не прятался под ней */
+    --cta-bar-height: 4.5rem;
+
+    color-scheme: light;
+  }
+
   .dark {
     --background: 240 3.4% 11.4%;          /* #1C1C1E graphite */
-    --foreground: 0 0% 100%;               /* #FFFFFF */
+    --foreground: 0 0% 100%;
 
     --card: 240 2.8% 14.1%;                /* #232325 */
     --card-foreground: 0 0% 100%;
@@ -19,8 +68,8 @@
     --popover: 240 2.8% 14.1%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 35 31.3% 61.8%;             /* #BCA37F coffee gold */
-    --primary-foreground: 240 3.4% 11.4%;  /* тёмный текст на золоте: контраст ≈ 8:1 */
+    --primary: 35 31.3% 61.8%;
+    --primary-foreground: 240 3.4% 11.4%;
 
     --secondary: 210 38.1% 16.5%;          /* #1A2A3A deep blue */
     --secondary-foreground: 0 0% 100%;
@@ -41,10 +90,14 @@
     --input: 240 3% 20%;
     --ring: 35 31.3% 61.8%;
 
-    --radius: 0.75rem;
-
-    /* Высота sticky-панели CTA — чтобы контент не прятался под ней */
-    --cta-bar-height: 4.5rem;
+    --heading: 0 0% 100%;
+    --body: 240 5% 64.9%;
+    --panel: 240 2.8% 14.1%;
+    --deep-blue: 210 38.1% 16.5%;
+    --line: 255 255 255;
+    --gold-text: 188 163 127;              /* #BCA37F */
+    --gold-text-hover: 201 179 145;
+    --shadow-panel: 0 8px 30px rgba(0, 0, 0, 0.35);
 
     color-scheme: dark;
   }
@@ -114,14 +167,14 @@
 
   ::selection {
     background: rgba(188, 163, 127, 0.35);
-    color: #ffffff;
+    color: inherit;
   }
 }
 
 @layer components {
   /* Панель «финансового терминала» */
   .terminal-panel {
-    @apply rounded-lg border border-white/5 bg-card shadow-panel;
+    @apply rounded-lg border border-line/10 bg-card shadow-panel dark:border-line/5;
   }
 
   /* Цифры цен/лет не «прыгают» при обновлении */
@@ -131,12 +184,12 @@
 
   /* Скелетон-загрузчик с шиммером */
   .skeleton {
-    @apply relative overflow-hidden rounded-md bg-white/5;
+    @apply relative overflow-hidden rounded-md bg-line/5;
   }
   .skeleton::after {
     content: "";
     @apply absolute inset-0 -translate-x-full animate-shimmer;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+    background: linear-gradient(90deg, transparent, rgb(var(--line) / 0.06), transparent);
   }
 }
 
@@ -235,23 +288,26 @@
   50% { opacity: 0.2; }
 }
 
-/* Leaflet: тёмная тема контролов под бренд */
+/* Leaflet: шрифт бренда; в тёмной теме — тёмные контролы */
 .leaflet-container {
   font-family: var(--font-inter), system-ui, sans-serif;
+  background: hsl(var(--muted));
+}
+.leaflet-control-attribution a {
+  color: rgb(var(--gold-text)) !important;
+}
+.dark .leaflet-container {
   background: #141416;
 }
-.leaflet-bar a,
-.leaflet-bar a:hover {
+.dark .leaflet-bar a,
+.dark .leaflet-bar a:hover {
   background: #232325 !important;
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
 }
-.leaflet-control-attribution {
+.dark .leaflet-control-attribution {
   background: rgba(28, 28, 30, 0.75) !important;
   color: #a1a1aa !important;
-}
-.leaflet-control-attribution a {
-  color: #bca37f !important;
 }
 
 /* Уважаем системную настройку «уменьшить движение» */
@@ -267,3 +323,18 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Юридические страницы (/privacy, /offer…): читаемая типографика без плагина typography */
+.legal h2 { @apply mt-10 scroll-mt-24 text-xl sm:text-2xl; }
+.legal h3 { @apply mt-6 text-base; }
+.legal p, .legal li { @apply leading-relaxed text-body; }
+.legal p { @apply mt-3; }
+.legal ul, .legal ol { @apply mt-3 space-y-1.5 pl-5; }
+.legal ul { @apply list-disc; }
+.legal ol { @apply list-decimal; }
+.legal strong { @apply font-semibold text-heading; }
+.legal a { @apply text-gold underline-offset-4 hover:underline; }
+.legal table { @apply mt-4 w-full border-collapse text-left text-sm; }
+.legal th { @apply border-b border-line/15 py-2 pr-4 font-semibold text-heading; }
+.legal td { @apply border-b border-line/10 py-2 pr-4 align-top text-body; }
+.legal .table-wrap { @apply -mx-4 overflow-x-auto px-4; }

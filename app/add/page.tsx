@@ -27,7 +27,7 @@ export default function AddListingPage() {
           <p className="mt-3 text-base">Квартира, дом, комната для студентов, коммерция или участок — в Ташкенте.</p>
           <ul className="mt-6 grid gap-3 sm:grid-cols-3">
             {PERKS.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-start gap-3 rounded-lg border border-white/5 bg-card/60 p-3 text-sm text-body">
+              <li key={text} className="flex items-start gap-3 rounded-lg border border-line/5 bg-card/60 p-3 text-sm text-body">
                 <Icon className="mt-0.5 h-5 w-5 shrink-0 text-gold" aria-hidden="true" />
                 {text}
               </li>

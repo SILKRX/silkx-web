@@ -96,7 +96,7 @@ export function ListingDetailsFields({
 
       {/* Аренда */}
       {dealType === "rent" && (
-        <fieldset className="space-y-3 rounded-lg border border-white/10 p-4">
+        <fieldset className="space-y-3 rounded-lg border border-line/10 p-4">
           <legend className="px-1 text-sm font-semibold text-heading">Условия аренды</legend>
           <div className="grid gap-4 sm:grid-cols-2">
             <NumberField label="Минимальный срок, мес." value={value.minTermMonths} onChange={(v) => set("minTermMonths", v)} placeholder="6" />
@@ -114,7 +114,7 @@ export function ListingDetailsFields({
 
       {/* Продажа: кредит */}
       {dealType === "sale" && (
-        <fieldset className="space-y-3 rounded-lg border border-white/10 p-4">
+        <fieldset className="space-y-3 rounded-lg border border-line/10 p-4">
           <legend className="px-1 text-sm font-semibold text-heading">Документы и кредит — покажем покупателю, подходит ли объект под ипотеку</legend>
           <div className="grid gap-4 sm:grid-cols-2">
             <Select
@@ -148,7 +148,7 @@ export function ListingDetailsFields({
       )}
 
       {/* Иностранцам */}
-      <fieldset className="space-y-3 rounded-lg border border-white/10 p-4">
+      <fieldset className="space-y-3 rounded-lg border border-line/10 p-4">
         <legend className="px-1 text-sm font-semibold text-heading">Для иностранцев · 外国客户</legend>
         <p className="text-xs text-body">На каких языках вы (или ваш агент) можете общаться</p>
         <div className="flex flex-wrap gap-2">
@@ -173,7 +173,7 @@ export function ListingDetailsFields({
             onChange={(e) => set("wechat", e.target.value.replace(/[^\w-]/g, "").slice(0, 30))}
             placeholder="wxid_..."
             autoCapitalize="none"
-            className="h-12 w-full rounded-lg border border-white/10 bg-background px-3 text-heading placeholder:text-body/60 focus:border-gold/60"
+            className="h-12 w-full rounded-lg border border-line/10 bg-background px-3 text-heading placeholder:text-body/60 focus:border-gold/60"
           />
         </label>
       </fieldset>
@@ -191,7 +191,7 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
       onClick={onClick}
       className={cn(
         "rounded-full border px-3.5 py-2 text-sm font-medium transition-colors",
-        on ? "border-gold bg-gold-muted text-gold" : "border-white/10 text-body hover:border-gold/40 hover:text-heading",
+        on ? "border-gold bg-gold-muted text-gold" : "border-line/10 text-body hover:border-gold/40 hover:text-heading",
       )}
     >
       {children}
@@ -236,7 +236,7 @@ function NumberField({ label, value, onChange, placeholder }: { label: string; v
         value={value}
         onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 3))}
         placeholder={placeholder}
-        className="h-12 w-full rounded-lg border border-white/10 bg-background px-3 text-heading placeholder:text-body/60 focus:border-gold/60"
+        className="h-12 w-full rounded-lg border border-line/10 bg-background px-3 text-heading placeholder:text-body/60 focus:border-gold/60"
       />
     </label>
   );

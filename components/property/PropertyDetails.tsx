@@ -144,7 +144,7 @@ export function PropertyDetails({ property: p }: { property: Property }) {
         </aside>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-white/5 bg-background/90 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-line/5 bg-background/90 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
         <p className="tabular min-w-0 flex-1 truncate font-heading text-lg font-bold text-heading">{price}</p>
         {tour.length > 0 && (
           <TourButton scenes={tour} title={p.title} className="h-11 px-3 text-sm" />

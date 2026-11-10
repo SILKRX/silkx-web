@@ -4,6 +4,7 @@ import { formatNumber } from "@/lib/format";
 import { formatUzPhone, validateListing } from "@/lib/listing";
 import { clientIp, rateLimit } from "@/lib/server/rate-limit";
 import { insertRow, isSupabaseConfigured } from "@/lib/server/supabase-rest";
+import { phoneForNotification } from "@/lib/server/redact";
 import { notifyTelegram } from "@/lib/server/telegram";
 import { PROPERTY_CATEGORIES, TASHKENT_DISTRICTS } from "@/lib/types";
 
@@ -93,7 +94,7 @@ export async function POST(req: Request) {
     `${formatNumber(d.price)} ${d.currency}${d.rentTerm === "day" ? " / сутки" : d.rentTerm === "month" ? " / мес" : ""}`,
     `${TASHKENT_DISTRICTS[d.district]}, ${d.address}`,
     `Фото: ${d.photos.length} · 3D-панорам: ${d.panoramas.length}`,
-    `${d.contactName}: ${formatUzPhone(d.phone)}${d.telegram ? ` · ${d.telegram}` : ""}`,
+    `${d.contactName}: ${phoneForNotification(formatUzPhone(d.phone))}${d.telegram ? ` · ${d.telegram}` : ""}`,
     `ID: ${id}`,
   ]);
 

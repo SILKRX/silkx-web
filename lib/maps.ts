@@ -1,3 +1,4 @@
+import { hasMapsConsent } from "@/lib/consent";
 import { TASHKENT_BOUNDS } from "@/lib/geo";
 import type { GeoPoint } from "@/lib/types";
 
@@ -12,7 +13,10 @@ import type { GeoPoint } from "@/lib/types";
  */
 
 export const YANDEX_KEY = process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY ?? "";
-export const MAP_ENGINE: "yandex" | "leaflet" = YANDEX_KEY ? "yandex" : "leaflet";
+/** Яндекс — только при наличии ключа И согласия посетителя на cookies Яндекса (баннер cookies). */
+export function mapEngine(): "yandex" | "leaflet" {
+  return YANDEX_KEY && hasMapsConsent() ? "yandex" : "leaflet";
+}
 
 export interface MapHandle {
   setPoint(point: GeoPoint, opts?: { pan?: boolean; zoom?: number }): void;
@@ -153,7 +157,9 @@ async function createLeafletMap(el: HTMLElement, opts: CreateMapOptions): Promis
     scrollWheelZoom: opts.interactive ?? false, // на странице объекта колесо листает страницу, а не карту
   });
   L.control.zoom({ position: "bottomright" }).addTo(map);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+  // Подложка под тему сайта: светлая Voyager или тёмная Dark Matter
+  const tiles = document.documentElement.classList.contains("dark") ? "dark_all" : "rastertiles/voyager";
+  L.tileLayer(`https://{s}.basemaps.cartocdn.com/${tiles}/{z}/{x}/{y}{r}.png`, {
     maxZoom: 19,
     subdomains: "abcd",
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -298,14 +304,23 @@ async function yandexReverse(point: GeoPoint): Promise<string | null> {
 // ---------------------------------------------------------------------------
 // Публичный API
 // ---------------------------------------------------------------------------
+// Если Яндекс не загрузился (неверный ключ, домен не добавлен в ограничения ключа, блокировка) —
+// показываем бесплатную карту OpenStreetMap вместо «Карта недоступна».
 export function createMap(el: HTMLElement, opts: CreateMapOptions): Promise<MapHandle> {
-  return MAP_ENGINE === "yandex" ? createYandexMap(el, opts) : createLeafletMap(el, opts);
+  if (mapEngine() !== "yandex") return createLeafletMap(el, opts);
+  return createYandexMap(el, opts).catch((err: unknown) => {
+    console.warn("[maps] Яндекс Карты недоступны, переключаемся на OpenStreetMap:", err);
+    el.innerHTML = "";
+    return createLeafletMap(el, opts);
+  });
 }
 
 export function geocode(query: string, signal?: AbortSignal): Promise<GeocodeResult[]> {
-  return MAP_ENGINE === "yandex" ? yandexSearch(query) : nominatimSearch(query, signal);
+  if (mapEngine() !== "yandex") return nominatimSearch(query, signal);
+  return yandexSearch(query).catch(() => nominatimSearch(query, signal));
 }
 
 export function reverseGeocode(point: GeoPoint, signal?: AbortSignal): Promise<string | null> {
-  return MAP_ENGINE === "yandex" ? yandexReverse(point) : nominatimReverse(point, signal);
+  if (mapEngine() !== "yandex") return nominatimReverse(point, signal);
+  return yandexReverse(point).catch(() => nominatimReverse(point, signal));
 }

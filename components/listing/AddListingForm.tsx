@@ -33,7 +33,9 @@ import { ACCEPTED_IMAGE_TYPES, CATEGORIES_WITHOUT_ROOMS, LISTING_LIMITS, validat
 import type { ListingErrors, ListingField } from "@/lib/listing";
 import { DISTRICT_SLUGS, PROPERTY_CATEGORIES, PROPERTY_CATEGORY_KEYS, TASHKENT_DISTRICTS, isDistrictSlug } from "@/lib/types";
 import type { Currency, DealType, DistrictSlug, PropertyCategory, RentTerm } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
+import { addMyListing } from "@/lib/my-listings";
 
 const PanoramaViewer = dynamic(() => import("@/components/tour/PanoramaViewer").then((m) => m.PanoramaViewer), {
   ssr: false,
@@ -370,6 +372,17 @@ export function AddListingForm() {
         return;
       }
       setResult({ id: data.id, demo: Boolean(data.demo) });
+      // Профиль → «Мои объекты»
+      addMyListing({
+        id: data.id,
+        title: text.title.trim(),
+        dealType: text.dealType,
+        price: Number(text.price.replace(/s/g, "")) || 0,
+        currency: text.currency,
+        district: text.district,
+        createdAt: new Date().toISOString(),
+        demo: Boolean(data.demo),
+      });
       setPhase("done");
       try {
         localStorage.removeItem(DRAFT_KEY);
@@ -424,7 +437,7 @@ export function AddListingForm() {
           <button
             type="button"
             onClick={resetAll}
-            className="inline-flex h-12 items-center justify-center rounded-lg border border-white/10 px-6 font-medium text-heading hover:border-gold/50"
+            className="inline-flex h-12 items-center justify-center rounded-lg border border-line/10 px-6 font-medium text-heading hover:border-gold/50"
           >
             Разместить ещё
           </button>
@@ -464,7 +477,7 @@ export function AddListingForm() {
                     "flex flex-col items-center gap-2 rounded-lg border p-4 text-center text-sm font-medium transition-all",
                     active
                       ? "border-gold bg-gold-muted text-heading shadow-gold-glow"
-                      : "border-white/10 bg-background text-body hover:border-gold/40 hover:text-heading",
+                      : "border-line/10 bg-background text-body hover:border-gold/40 hover:text-heading",
                   )}
                 >
                   <Icon className={cn("h-6 w-6", active ? "text-gold" : "text-body")} aria-hidden="true" />
@@ -640,7 +653,7 @@ export function AddListingForm() {
         <div data-field="photos">
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
             {photos.map((p, i) => (
-              <div key={p.id} className="group relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-background">
+              <div key={p.id} className="group relative aspect-square overflow-hidden rounded-lg border border-line/10 bg-background">
                 {/* eslint-disable-next-line @next/next/no-img-element -- локальный blob: URL, next/image тут не нужен */}
                 <img src={p.previewUrl} alt={`Фото ${i + 1}`} className="h-full w-full object-cover" />
                 {i === 0 ? (
@@ -685,7 +698,7 @@ export function AddListingForm() {
         subtitle="Покупатели «пройдут» по квартире до показа. Объявления с 3D-туром получают в среднем больше заявок."
       >
         <div data-field="panoramas" className="space-y-4">
-          <details className="rounded-lg border border-white/10 bg-background p-4 text-sm">
+          <details className="rounded-lg border border-line/10 bg-background p-4 text-sm">
             <summary className="cursor-pointer font-medium text-heading">Как снять панораму 360° на телефон?</summary>
             <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-body">
               <li>Лучше всего — камера 360° (Insta360, Ricoh Theta): один кадр снимает всю комнату. Без камеры подойдёт приложение для сферических панорам (ищите в магазине приложений «360 panorama» / «photo sphere»).</li>
@@ -702,7 +715,7 @@ export function AddListingForm() {
               </div>
               <ul className="space-y-2">
                 {panoramas.map((p, i) => (
-                  <li key={p.id} className="flex items-center gap-3 rounded-lg border border-white/10 bg-background p-2">
+                  <li key={p.id} className="flex items-center gap-3 rounded-lg border border-line/10 bg-background p-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={p.previewUrl} alt="" className="h-12 w-24 shrink-0 rounded-md object-cover" />
                     <label className="sr-only" htmlFor={`pano-${p.id}`}>
@@ -717,7 +730,7 @@ export function AddListingForm() {
                         const v = e.target.value;
                         setPanoramas((list) => list.map((x) => (x.id === p.id ? { ...x, title: v } : x)));
                       }}
-                      className="h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-card px-3 text-sm text-heading focus:border-gold/60"
+                      className="h-10 min-w-0 flex-1 rounded-md border border-line/10 bg-card px-3 text-sm text-heading focus:border-gold/60"
                     />
                     {p.ratioWarning && (
                       <span title="Пропорции не 2:1 — панорама может выглядеть искажённо" className="shrink-0">
@@ -802,28 +815,22 @@ export function AddListingForm() {
         </Field>
 
         <div data-field="agree">
-          <label htmlFor={ids.agree} className="flex cursor-pointer items-start gap-3 text-sm text-body">
-            <input
-              id={ids.agree}
-              type="checkbox"
-              checked={agree}
-              onChange={(e) => {
-                setAgree(e.target.checked);
-                setErrors((er) => ({ ...er, agree: undefined }));
-              }}
-              className="mt-0.5 h-5 w-5 shrink-0 accent-[#BCA37F]"
-            />
-            <span>
-              Я собственник или официальный представитель, информация достоверна. Согласен с правилами размещения и обработкой
-              персональных данных.
-            </span>
-          </label>
-          <FieldError message={errors.agree} />
+          <ConsentCheckbox
+            id={ids.agree}
+            checked={agree}
+            onChange={(v) => {
+              setAgree(v);
+              setErrors((er) => ({ ...er, agree: undefined }));
+            }}
+            error={errors.agree}
+            extra="Я собственник или официальный представитель объекта, сведения достоверны."
+            purpose="модерации и публикации объявления и связи со мной покупателей"
+          />
         </div>
       </Section>
 
       {/* Отправка: на мобильном — липкая панель снизу */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/5 bg-background/90 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur sm:static sm:border-0 sm:bg-transparent sm:p-0">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line/5 bg-background/90 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur sm:static sm:border-0 sm:bg-transparent sm:p-0">
         <button
           type="submit"
           disabled={busy || processing}
@@ -842,7 +849,7 @@ export function AddListingForm() {
           )}
         </button>
         {busy && progress.total > 0 && (
-          <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.done}>
+          <div className="mt-2 h-1 overflow-hidden rounded-full bg-line/10" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.done}>
             <div className="h-full bg-gold transition-[width] duration-300" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
           </div>
         )}
@@ -857,7 +864,7 @@ export function AddListingForm() {
 const inputCls = (error?: string) =>
   cn(
     "h-12 w-full rounded-lg border bg-background px-3 text-heading placeholder:text-body/60 transition-colors focus:border-gold/60",
-    error ? "border-destructive" : "border-white/10",
+    error ? "border-destructive" : "border-line/10",
   );
 
 function Section({ step, title, subtitle, children }: { step: number; title: string; subtitle?: string; children: ReactNode }) {
@@ -930,7 +937,7 @@ function Segmented<T extends string>({
   return (
     <div className="space-y-1.5">
       <span className="block text-xs font-medium uppercase tracking-wider text-body">{label}</span>
-      <div className="flex h-12 rounded-lg border border-white/10 bg-background p-1" role="radiogroup" aria-label={label}>
+      <div className="flex h-12 rounded-lg border border-line/10 bg-background p-1" role="radiogroup" aria-label={label}>
         {options.map((o) => (
           <button
             key={o.value}
@@ -973,7 +980,7 @@ function DropTile({
       className={cn(
         "flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed p-4 text-center text-sm font-medium text-heading transition-colors hover:border-gold/60 hover:bg-gold-muted",
         wide ? "min-h-32 w-full" : "aspect-square",
-        error ? "border-destructive" : "border-white/15",
+        error ? "border-destructive" : "border-line/15",
         disabled && "pointer-events-none opacity-50",
       )}
     >

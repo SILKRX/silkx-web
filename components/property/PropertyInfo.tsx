@@ -66,7 +66,7 @@ function Rows({ rows }: { rows: Array<[string, string | number | undefined]> }) 
   const visible = rows.filter((r): r is [string, string | number] => r[1] !== undefined && r[1] !== "");
   if (!visible.length) return null;
   return (
-    <dl className="terminal-panel divide-y divide-white/5">
+    <dl className="terminal-panel divide-y divide-line/5">
       {visible.map(([k, v]) => (
         <div key={k} className="flex items-baseline justify-between gap-4 px-4 py-3 text-sm">
           <dt className="text-body">{k}</dt>

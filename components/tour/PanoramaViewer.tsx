@@ -470,7 +470,7 @@ export function PanoramaViewer({ scenes, initialSceneId, className, compact = fa
 
       {status === "loading" && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-          <Loader2 className="h-8 w-8 animate-spin text-gold" aria-hidden="true" />
+          <Loader2 className="h-8 w-8 animate-spin text-gold-bright" aria-hidden="true" />
           <span className="sr-only">Загружаем панораму…</span>
         </div>
       )}
@@ -489,7 +489,7 @@ export function PanoramaViewer({ scenes, initialSceneId, className, compact = fa
       {status === "ready" && hintVisible && (
         <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center">
           <span className="inline-flex items-center gap-2 rounded-full bg-black/55 px-4 py-2 text-sm text-white backdrop-blur">
-            <Move3d className="h-4 w-4 text-gold" aria-hidden="true" />
+            <Move3d className="h-4 w-4 text-gold-bright" aria-hidden="true" />
             Потяните, чтобы осмотреться
           </span>
         </div>

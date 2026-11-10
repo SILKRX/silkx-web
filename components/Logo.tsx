@@ -15,7 +15,8 @@ export function Logo({ height = 30, className, priority = false }: { height?: nu
         width={Math.round(height * RATIO)}
         height={height}
         priority={priority}
-        className="h-auto select-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]"
+        // Светлая тема: invert + hue-rotate превращают белый «SILK» в графит, а золотой X — в бронзу
+        className="h-auto select-none invert hue-rotate-180 dark:invert-0 dark:hue-rotate-0 dark:drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]"
         style={{ height, width: "auto" }}
       />
     </Link>

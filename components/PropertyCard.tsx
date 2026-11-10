@@ -41,12 +41,12 @@ const STATUS_CONFIG: Record<PropertyStatus, { label: string; icon: LucideIcon; c
   new: {
     label: "Новинка",
     icon: Sparkles,
-    className: "bg-deep-blue text-heading ring-1 ring-white/10",
+    className: "bg-[#1A2A3A] text-white ring-1 ring-white/10",
   },
   verified: {
     label: "Проверено SILKX",
     icon: BadgeCheck,
-    className: "bg-graphite/80 text-gold ring-1 ring-gold/40",
+    className: "bg-graphite/80 text-gold-bright ring-1 ring-gold/40",
   },
   available: {
     label: "Свободна",
@@ -56,7 +56,7 @@ const STATUS_CONFIG: Record<PropertyStatus, { label: string; icon: LucideIcon; c
   reserved: {
     label: "Забронировано",
     icon: Clock,
-    className: "bg-graphite/80 text-body ring-1 ring-white/10",
+    className: "bg-graphite/80 text-zinc-300 ring-1 ring-white/10",
   },
 };
 
@@ -108,7 +108,7 @@ function PropertyCardComponent({
       href={link}
       aria-label={`${title}, ${districtLabel} район, ${formatPrice(price, currency, type)}`}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg border border-white/5 bg-card",
+        "group relative flex flex-col overflow-hidden rounded-lg border border-line/5 bg-card",
         "transition-[box-shadow,transform,border-color] duration-300 ease-out",
         "hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-gold-glow",
         "focus-visible:shadow-gold-glow active:translate-y-0 active:scale-[0.99]",
@@ -153,13 +153,13 @@ function PropertyCardComponent({
         </div>
 
         {has3dTour && (
-          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold leading-none text-gold ring-1 ring-gold/40 backdrop-blur-sm">
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold leading-none text-gold-bright ring-1 ring-gold/40 backdrop-blur-sm">
             <Box className="h-3.5 w-3.5" aria-hidden="true" />
             3D-тур
           </span>
         )}
 
-        <span className="absolute right-3 top-3 rounded-full bg-graphite/70 px-2.5 py-1 text-[11px] font-medium leading-none text-heading backdrop-blur-sm">
+        <span className="absolute right-3 top-3 rounded-full bg-graphite/70 px-2.5 py-1 text-[11px] font-medium leading-none text-white backdrop-blur-sm">
           {TYPE_LABEL[type]}
         </span>
       </div>
@@ -185,14 +185,14 @@ function PropertyCardComponent({
               </li>
             ))}
             {hiddenTagsCount > 0 && (
-              <li className="rounded-md bg-white/5 px-2 py-1 text-[11px] font-medium leading-none text-body">
+              <li className="rounded-md bg-line/5 px-2 py-1 text-[11px] font-medium leading-none text-body">
                 +{hiddenTagsCount}
               </li>
             )}
           </ul>
         )}
 
-        <div className="mt-auto flex items-end justify-between gap-3 border-t border-white/5 pt-3">
+        <div className="mt-auto flex items-end justify-between gap-3 border-t border-line/5 pt-3">
           <p className="tabular font-heading text-lg font-bold leading-none text-heading">
             {formatPrice(price, currency, type)}
           </p>

@@ -41,7 +41,7 @@ export function DealTypeSwitch({ value, onChange, fullWidth = false, className }
       role="radiogroup"
       aria-label="Тип сделки"
       className={cn(
-        "inline-flex w-full rounded-xl border border-white/10 bg-graphite/70 p-1 backdrop-blur",
+        "inline-flex w-full rounded-xl border border-line/10 bg-card/80 p-1 shadow-panel backdrop-blur dark:bg-graphite/70",
         !fullWidth && "sm:w-auto",
         className,
       )}
@@ -67,7 +67,7 @@ export function DealTypeSwitch({ value, onChange, fullWidth = false, className }
               "flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg px-5 text-sm font-semibold",
               "transition-colors duration-200",
               !fullWidth && "sm:flex-none",
-              active ? "bg-gold text-graphite shadow-sm" : "text-body hover:bg-white/5 hover:text-heading",
+              active ? "bg-gold text-graphite shadow-sm" : "text-body hover:bg-line/5 hover:text-heading",
             )}
           >
             <Icon className="h-4 w-4" aria-hidden="true" />

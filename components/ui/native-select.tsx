@@ -23,7 +23,7 @@ export const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(fun
         ref={ref}
         className={cn(
           "h-12 w-full cursor-pointer appearance-none truncate rounded-lg border border-input bg-background pl-3 pr-10 text-heading",
-          "transition-colors hover:border-white/20 focus:border-gold/60 focus:outline-none",
+          "transition-colors hover:border-line/20 focus:border-gold/60 focus:outline-none",
           "disabled:cursor-not-allowed disabled:opacity-50",
           "[&>option]:bg-card [&>option]:text-heading",
           className,

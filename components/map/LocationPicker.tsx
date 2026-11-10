@@ -4,7 +4,7 @@ import { Crosshair, Loader2, MapPin, RefreshCw, Search } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { TASHKENT_CENTER, isInTashkent } from "@/lib/geo";
-import { MAP_ENGINE, createMap, geocode, reverseGeocode } from "@/lib/maps";
+import { createMap, geocode, reverseGeocode } from "@/lib/maps";
 import type { GeocodeResult, MapHandle } from "@/lib/maps";
 import type { GeoPoint } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -183,7 +183,7 @@ export function LocationPicker({ value, onChange, fallbackCenter, error }: Locat
             }}
             placeholder="Улица, дом или ориентир — например, «Амира Темура 107»"
             autoComplete="off"
-            className="h-12 w-full rounded-lg border border-white/10 bg-background pl-10 pr-3 text-heading placeholder:text-body/70 focus:border-gold/60"
+            className="h-12 w-full rounded-lg border border-line/10 bg-background pl-10 pr-3 text-heading placeholder:text-body/70 focus:border-gold/60"
           />
         </div>
         <button
@@ -199,7 +199,7 @@ export function LocationPicker({ value, onChange, fallbackCenter, error }: Locat
           type="button"
           onClick={locateMe}
           disabled={locating}
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-card text-heading transition-colors hover:border-gold/60 disabled:opacity-60"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-line/10 bg-card text-heading transition-colors hover:border-gold/60 disabled:opacity-60"
           aria-label="Моё местоположение"
           title="Моё местоположение"
         >
@@ -208,13 +208,13 @@ export function LocationPicker({ value, onChange, fallbackCenter, error }: Locat
       </div>
 
       {results.length > 1 && (
-        <ul className="terminal-panel divide-y divide-white/5 overflow-hidden" aria-label="Найденные адреса">
+        <ul className="terminal-panel divide-y divide-line/5 overflow-hidden" aria-label="Найденные адреса">
           {results.map((r) => (
             <li key={`${r.point.lat},${r.point.lng}`}>
               <button
                 type="button"
                 onClick={() => choose(r)}
-                className="flex w-full items-start gap-2 px-4 py-3 text-left text-sm text-heading transition-colors hover:bg-white/5"
+                className="flex w-full items-start gap-2 px-4 py-3 text-left text-sm text-heading transition-colors hover:bg-line/5"
               >
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
                 {r.address}
@@ -230,7 +230,7 @@ export function LocationPicker({ value, onChange, fallbackCenter, error }: Locat
       )}
 
       {/* Карта */}
-      <div className={cn("relative h-72 overflow-hidden rounded-lg border sm:h-96", error ? "border-destructive" : "border-white/10")}>
+      <div className={cn("relative h-72 overflow-hidden rounded-lg border sm:h-96", error ? "border-destructive" : "border-line/10")}>
         <div ref={mapElRef} className="absolute inset-0" />
         {mapState === "loading" && <div className="skeleton absolute inset-0 rounded-none" aria-label="Загружаем карту" />}
         {mapState === "error" && (
@@ -274,7 +274,7 @@ export function LocationPicker({ value, onChange, fallbackCenter, error }: Locat
           aria-invalid={Boolean(error)}
           className={cn(
             "h-12 w-full rounded-lg border bg-background px-3 text-heading placeholder:text-body/70 focus:border-gold/60",
-            error ? "border-destructive" : "border-white/10",
+            error ? "border-destructive" : "border-line/10",
           )}
         />
         {error ? (
@@ -283,9 +283,7 @@ export function LocationPicker({ value, onChange, fallbackCenter, error }: Locat
           <p className="text-xs text-body">
             {value.point
               ? `Координаты: ${value.point.lat.toFixed(5)}, ${value.point.lng.toFixed(5)}`
-              : MAP_ENGINE === "yandex"
-                ? "Карта: Яндекс"
-                : "Точный адрес покупатели увидят после подтверждения модератором."}
+              : "Точный адрес покупатели увидят после подтверждения модератором."}
           </p>
         )}
       </div>
