@@ -10,12 +10,13 @@ import type { Property } from "@/lib/types";
  * на 6 языках и отвечаем по тем же данным каталога. Не так гибко, как ИИ, но всегда по фактам.
  */
 
-type Intent = "credit" | "student" | "rent" | "buy" | "foreign" | "other";
+type Intent = "credit" | "student" | "rent" | "secondary" | "buy" | "foreign" | "other";
 
 const KW: Array<[Intent, RegExp]> = [
   ["credit", /ипотек|кредит|рассроч|kredit|ipoteka|nasiya|mortgage|loan|installment|贷款|按揭|分期|대출|할부|kredi|taksit/i],
   ["student", /студент|универ|talaba|universitet|student|universit|学生|大学|학생|대학|öğrenci|üniversite/i],
   ["foreign", /иностран|китай|chet|xorij|xitoy|chinese|foreign|china|中国|外国|华人|외국|중국|yabancı|çin/i],
+  ["secondary", /втори[чк]|вторичн|ikkilamchi|resale|second[- ]?hand|secondary|二手|재고|중고|구축|ikinci el/i],
   ["rent", /аренд|снять|сним|ijara|rent|lease|租|월세|전세|임대|kira/i],
   ["buy", /куп|новостро|sotib|yangi uy|buy|purchase|new build|买|购|新房|구매|매매|분양|satın|almak|yeni konut/i],
 ];
@@ -69,6 +70,8 @@ interface Tpl {
   rentList: (items: string) => string;
   studentList: (items: string) => string;
   buyList: (items: string) => string;
+  secondaryList: (items: string) => string;
+  secondaryNone: string;
   creditList: (items: string) => string;
   foreignList: (items: string) => string;
   creditOne: (name: string, verdict: string, down: string, monthly: string, installment: string) => string;
@@ -86,6 +89,8 @@ const T: Record<AssistantLang, Tpl> = {
     rentList: (i) => `Сейчас свободны: ${i}. Хотите подробности по условиям аренды?`,
     studentList: (i) => `Студентам подойдут: ${i}. Лучше бронировать до сентября — цены растут.`,
     buyList: (i) => `Новостройки по прямым ценам застройщиков: ${i}.`,
+    secondaryList: (i) => `Вторичное жильё от собственников и агентств, проверенное SILKX: ${i}. Перед покупкой проверим документы: кадастр, собственников и обременения.`,
+    secondaryNone: "Вторичного жилья в каталоге пока мало — объявления появляются после проверки модератором. Оставьте заявку: район, бюджет и комнаты — риелтор SILKX подберёт варианты.",
     creditList: (i) => `Под ипотеку подходят: ${i}. Взнос от 25%, срок до 20 лет.`,
     foreignList: (i) => `Для иностранных клиентов, с WeChat и UnionPay: ${i}. Иностранцы могут купить новое жильё без вида на жительство.`,
     creditOne: (n, v, d, m, ins) => `${n}: ${v} Первый взнос около ${d} млн сум, платёж около ${m} млн сум в месяц на 20 лет.${ins}`,
@@ -101,6 +106,8 @@ const T: Record<AssistantLang, Tpl> = {
     rentList: (i) => `Hozir bo'sh: ${i}. Ijara shartlari haqida batafsil aytaymi?`,
     studentList: (i) => `Talabalar uchun mos: ${i}. Sentyabrgacha band qilgan ma'qul — narxlar oshadi.`,
     buyList: (i) => `Quruvchidan to'g'ridan-to'g'ri narxlardagi yangi uylar: ${i}.`,
+    secondaryList: (i) => `SILKX tekshirgan, egalari va agentliklardan ikkilamchi uy-joy: ${i}. Sotib olishdan oldin hujjatlarni tekshiramiz: kadastr, egalar va taqiqlar.`,
+    secondaryNone: "Katalogda ikkilamchi uy-joy hozircha kam — e'lonlar moderatsiyadan keyin chiqadi. Ariza qoldiring: tuman, byudjet va xonalar — SILKX rieltori variantlar topadi.",
     creditList: (i) => `Ipotekaga mos: ${i}. Boshlang'ich to'lov 25% dan, muddat 20 yilgacha.`,
     foreignList: (i) => `Chet ellik mijozlar uchun, WeChat va UnionPay bilan: ${i}. Chet elliklar yangi uyni yashash ruxsatnomasisiz sotib olishi mumkin.`,
     creditOne: (n, v, d, m, ins) => `${n}: ${v} Boshlang'ich to'lov taxminan ${d} mln so'm, oylik to'lov taxminan ${m} mln so'm, 20 yilga.${ins}`,
@@ -116,6 +123,8 @@ const T: Record<AssistantLang, Tpl> = {
     rentList: (i) => `Available now: ${i}. Want the rental terms?`,
     studentList: (i) => `Good options for students: ${i}. Book before September — prices go up.`,
     buyList: (i) => `New developments at direct developer prices: ${i}.`,
+    secondaryList: (i) => `Resale homes from owners and agencies, verified by SILKX: ${i}. Before you buy, we check the documents: cadastre, owners and encumbrances.`,
+    secondaryNone: "There are few resale homes in the catalog yet — listings appear after moderation. Leave a request with district, budget and rooms, and a SILKX realtor will find options.",
     creditList: (i) => `Mortgage-eligible: ${i}. Down payment from 25%, up to 20 years.`,
     foreignList: (i) => `Best for international clients, with WeChat and UnionPay: ${i}. Foreigners can buy new housing without a residence permit.`,
     creditOne: (n, v, d, m, ins) => `${n}: ${v} Down payment about ${d} million sum, around ${m} million sum per month over 20 years.${ins}`,
@@ -131,6 +140,8 @@ const T: Record<AssistantLang, Tpl> = {
     rentList: (i) => `目前可租：${i}。需要了解租赁条件吗？`,
     studentList: (i) => `适合学生的房源：${i}。建议九月前预订，届时价格会上涨。`,
     buyList: (i) => `开发商直售新房：${i}。`,
+    secondaryList: (i) => `经 SILKX 审核的业主和中介二手房：${i}。购买前我们会核查产权、业主和抵押情况。`,
+    secondaryNone: "目前目录中的二手房还不多——房源需审核后才会上线。请留下区域、预算和房间数，SILKX 经纪人会为您挑选。",
     creditList: (i) => `可申请按揭的房源：${i}。首付25%起，最长20年。`,
     foreignList: (i) => `适合外国客户，支持微信和银联：${i}。外国人无需居留许可即可购买新房。`,
     creditOne: (n, v, d, m, ins) => `${n}：${v}首付约${d}百万苏姆，20年期月供约${m}百万苏姆。${ins}`,
@@ -146,6 +157,8 @@ const T: Record<AssistantLang, Tpl> = {
     rentList: (i) => `현재 임대 가능: ${i}. 임대 조건을 알려드릴까요?`,
     studentList: (i) => `학생에게 좋은 매물: ${i}. 9월 전에 예약하세요 — 가격이 오릅니다.`,
     buyList: (i) => `분양가 그대로의 신축: ${i}.`,
+    secondaryList: (i) => `SILKX가 확인한 집주인·중개업체의 재고 주택: ${i}. 구매 전에 등기, 소유자, 담보 여부를 확인해 드려요.`,
+    secondaryNone: "아직 카탈로그에 재고 주택이 많지 않아요. 매물은 검수 후 공개됩니다. 지역, 예산, 방 개수를 남겨 주시면 SILKX 중개인이 찾아 드릴게요.",
     creditList: (i) => `대출 가능 매물: ${i}. 계약금 25%부터, 최대 20년.`,
     foreignList: (i) => `외국인 고객용 매물: ${i}. 외국인은 거주허가 없이 신축 주택을 살 수 있습니다.`,
     creditOne: (n, v, d, m, ins) => `${n}: ${v} 계약금 약 ${d}백만 숨, 20년 기준 월 약 ${m}백만 숨입니다.${ins}`,
@@ -161,6 +174,8 @@ const T: Record<AssistantLang, Tpl> = {
     rentList: (i) => `Şu an müsait: ${i}. Kira şartlarını anlatayım mı?`,
     studentList: (i) => `Öğrenciler için uygun: ${i}. Eylülden önce ayırtın — fiyatlar artıyor.`,
     buyList: (i) => `Müteahhitten doğrudan fiyatlı yeni konutlar: ${i}.`,
+    secondaryList: (i) => `SILKX tarafından doğrulanmış, ev sahiplerinden ve emlakçılardan ikinci el konutlar: ${i}. Satın almadan önce tapu, malikler ve ipotek durumunu kontrol ederiz.`,
+    secondaryNone: "Katalogda henüz az ikinci el konut var — ilanlar moderasyondan sonra yayınlanıyor. Semt, bütçe ve oda sayısıyla talep bırakın, SILKX danışmanı seçenek bulsun.",
     creditList: (i) => `Krediye uygun: ${i}. Peşinat %25'ten, vade 20 yıla kadar.`,
     foreignList: (i) => `Yabancı müşteriler için uygun: ${i}. Yabancılar oturma izni olmadan yeni konut satın alabilir.`,
     creditOne: (n, v, d, m, ins) => `${n}: ${v} Peşinat yaklaşık ${d} milyon sum, 20 yıl vadede aylık yaklaşık ${m} milyon sum.${ins}`,
@@ -174,11 +189,17 @@ const T: Record<AssistantLang, Tpl> = {
 
 const short = (p: Property, lang: AssistantLang) => `${localName(p, lang)} (${district(p, lang)}, ${price(p)})`;
 
-export function fallbackReply(text: string, lang: AssistantLang, currentId: string | null): { reply: string; ids: string[] } {
+export function fallbackReply(
+  text: string,
+  lang: AssistantLang,
+  currentId: string | null,
+  /** Все объекты (демо + объявления из базы). По умолчанию — только демо. */
+  all: readonly Property[] = MOCK_PROPERTIES,
+): { reply: string; ids: string[] } {
   const t = T[lang];
   const intent = detect(text);
-  const current = currentId ? getPropertyById(currentId) : null;
-  const available = MOCK_PROPERTIES.filter((p) => p.status !== "reserved");
+  const current = currentId ? (all.find((p) => p.id === currentId) ?? getPropertyById(currentId)) : null;
+  const available = all.filter((p) => p.status !== "reserved");
 
   // Вопрос про объект, который пользователь сейчас смотрит
   const aboutCurrent =
@@ -187,7 +208,8 @@ export function fallbackReply(text: string, lang: AssistantLang, currentId: stri
       intent === "other" ||
       intent === "foreign" ||
       (intent === "rent" && current.type === "rent") ||
-      (intent === "buy" && current.type === "sale"));
+      (intent === "buy" && current.type === "sale") ||
+      (intent === "secondary" && current.market === "secondary"));
   if (current && aboutCurrent) {
     if (current.type === "sale") {
       const c = assessCredit(current);
@@ -225,8 +247,13 @@ export function fallbackReply(text: string, lang: AssistantLang, currentId: stri
       list = available.filter((p) => p.type === "rent").sort((a, b) => a.price - b.price);
       build = t.rentList;
       break;
+    case "secondary":
+      list = available.filter((p) => p.type === "sale" && p.market === "secondary").sort((a, b) => a.price - b.price);
+      if (!list.length) return { reply: t.secondaryNone, ids: [] };
+      build = t.secondaryList;
+      break;
     case "buy":
-      list = available.filter((p) => p.type === "sale").sort((a, b) => a.price - b.price);
+      list = available.filter((p) => p.type === "sale" && p.market !== "secondary").sort((a, b) => a.price - b.price);
       build = t.buyList;
       break;
     default:

@@ -97,7 +97,7 @@ export default function HomePage() {
           <div className="container w-full pb-12 pt-28 sm:pb-24 sm:pt-32">
             <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-card/70 px-3 py-1 text-xs font-medium text-gold backdrop-blur dark:bg-black/30">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" aria-hidden="true" />
-              Новостройки · Аренда · Посуточно — Ташкент
+              Новостройки · Вторичка · Аренда — Ташкент
             </p>
             <h1 className="max-w-3xl text-4xl font-bold leading-[1.08] sm:text-5xl lg:text-6xl">
               Найдите дом в Ташкенте&nbsp;— <span className="text-gold">и осмотрите его в 3D</span> до визита
