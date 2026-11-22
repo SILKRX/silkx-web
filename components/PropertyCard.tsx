@@ -25,6 +25,8 @@ export interface PropertyCardProps {
   areaM2?: number;
   /** Есть 3D-тур 360° — показываем бейдж на фото. */
   has3dTour?: boolean;
+  /** Демо-объект (пример, а не реальное предложение) — маленький значок «Пример». */
+  demo?: boolean;
   /** Подпись раздела на карточке («Новостройка», «Вторичка», «Аренда»). */
   kindLabel?: string;
   /** Площадь «от» (новостройки — минимальная планировка). По умолчанию — для продажи. */
@@ -85,6 +87,7 @@ function PropertyCardComponent({
   areaM2,
   has3dTour = false,
   kindLabel,
+  demo = false,
   areaFrom,
   href,
   priority = false,
@@ -166,6 +169,7 @@ function PropertyCardComponent({
         )}
 
         <span className="absolute right-3 top-3 rounded-full bg-graphite/70 px-2.5 py-1 text-[11px] font-medium leading-none text-white backdrop-blur-sm">
+          {demo ? "Пример · " : ""}
           {kindLabel ?? TYPE_LABEL[type]}
         </span>
       </div>

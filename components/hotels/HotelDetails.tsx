@@ -9,7 +9,7 @@ import { PropertyMap } from "@/components/map/PropertyMap";
 import { TourButton } from "@/components/tour/TourButton";
 import { TourEmbed } from "@/components/tour/TourEmbed";
 import { formatNumber, pluralize } from "@/lib/format";
-import { hotelMinPrice, hotelRoomsCount, telHref } from "@/lib/hotels";
+import { HOTELS_ARE_DEMO, hotelMinPrice, hotelRoomsCount, telHref } from "@/lib/hotels";
 import type { Hotel } from "@/lib/hotels";
 import { TASHKENT_DISTRICTS } from "@/lib/types";
 
@@ -65,6 +65,11 @@ export function HotelDetails({ hotel: h }: { hotel: Hotel }) {
           <header>
             <Stars count={h.stars} />
             <h1 className="mt-2 text-2xl sm:text-4xl">{h.name}</h1>
+            {HOTELS_ARE_DEMO && (
+              <p className="mt-2 inline-flex rounded-md bg-line/5 px-2.5 py-1 text-xs text-body">
+                Пример отеля: название, цены и телефон — демонстрационные. Реальные отели-партнёры скоро появятся.
+              </p>
+            )}
             <p className="mt-2 flex items-center gap-1.5 text-sm">
               <MapPin className="h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
               {district} р-н · {h.address}
