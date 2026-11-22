@@ -34,6 +34,9 @@ export function SiteHeader({ overlay = false }: SiteHeaderProps) {
             <span className="sm:hidden">Купить</span>
             <span className="hidden sm:inline">Новостройки</span>
           </Link>
+          <Link href="/catalog?type=secondary" className="hidden rounded-md px-3 py-2 text-body transition-colors hover:text-heading md:inline-flex">
+            Вторичка
+          </Link>
           <Link href="/catalog?type=rent" className="hidden rounded-md px-3 py-2 text-body transition-colors hover:text-heading sm:inline-flex">
             Аренда
           </Link>

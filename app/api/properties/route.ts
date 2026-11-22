@@ -10,7 +10,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 /**
  * GET /api/properties — список опубликованных объектов для Telegram-бота и внешних клиентов.
- * Параметры: type=sale|rent, district=<slug>, rooms=0..4 (4 = 4+), maxPrice, currency=USD|UZS, q=<текст>, limit=1..50
+ * Параметры: type=sale|rent|new|secondary (new/secondary — новостройки или вторичка), district=<slug>, rooms=0..4 (4 = 4+), maxPrice, currency=USD|UZS, q=<текст>, limit=1..50
  * Пример: /api/properties?type=rent&rooms=0&maxPrice=500
  */
 export async function GET(req: Request) {

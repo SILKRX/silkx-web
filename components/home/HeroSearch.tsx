@@ -10,13 +10,13 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { DEFAULT_FILTERS, ROOM_OPTIONS, isRoomOption, serializeFilters } from "@/lib/catalog-filters";
 import type { CatalogFilters, RoomOption } from "@/lib/catalog-filters";
 import { DISTRICT_SLUGS, TASHKENT_DISTRICTS, isDistrictSlug } from "@/lib/types";
-import type { DealType, DistrictSlug } from "@/lib/types";
+import type { CatalogKind, DistrictSlug } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /** Переключатель + быстрый поиск в Hero. Отправляет в /catalog с теми же URL-параметрами, что читает каталог. */
 export function HeroSearch() {
   const router = useRouter();
-  const [type, setType] = useState<DealType>("sale");
+  const [type, setType] = useState<CatalogKind>("new");
   const [district, setDistrict] = useState<DistrictSlug | "">("");
   const [rooms, setRooms] = useState<RoomOption | "">("");
   const [isPending, startTransition] = useTransition();

@@ -4,6 +4,42 @@ import type { PropertyDetails } from "@/lib/property-details";
 
 export type DealType = "sale" | "rent";
 
+/** Рынок продажи: новостройка (от застройщика) или вторичное жильё (от собственника / агентства). */
+export type Market = "new_build" | "secondary";
+
+/**
+ * Раздел каталога — то, что видит пользователь: «Новостройки», «Вторичка», «Аренда».
+ * new и secondary — это продажа (DealType "sale") на разных рынках.
+ */
+export type CatalogKind = "new" | "secondary" | "rent";
+
+export const CATALOG_KINDS: Record<CatalogKind, { label: string; one: string; all: string }> = {
+  new: { label: "Новостройки", one: "Новостройка", all: "Все новостройки" },
+  secondary: { label: "Вторичка", one: "Вторичка", all: "Всё вторичное жильё" },
+  rent: { label: "Аренда", one: "Аренда", all: "Вся аренда" },
+};
+
+export function isCatalogKind(value: unknown): value is CatalogKind {
+  return value === "new" || value === "secondary" || value === "rent";
+}
+
+/** К какому разделу каталога относится объект. */
+export function catalogKindOf(p: { type: DealType; market?: Market }): CatalogKind {
+  if (p.type === "rent") return "rent";
+  return p.market === "secondary" ? "secondary" : "new";
+}
+
+/** Публичный путь объекта на сайте. Чистая функция — можно и на сервере, и в браузере. */
+export function propertyPath(p: { id: string; type: DealType; market?: Market }): string {
+  const id = encodeURIComponent(p.id);
+  const kind = catalogKindOf(p);
+  if (kind === "rent") return `/rent/${id}`;
+  return kind === "secondary" ? `/secondary/${id}` : `/complex/${id}`;
+}
+
+/** Ссылка на раздел каталога. */
+export const catalogHref = (kind: CatalogKind) => (kind === "new" ? "/catalog" : `/catalog?type=${kind}`);
+
 export type Currency = "USD" | "UZS";
 
 /** Статус объекта, который показывается бейджем на карточке. */
@@ -71,6 +107,12 @@ export interface TourScene {
 export interface Property {
   id: string;
   type: DealType;
+  /** Только для продажи: новостройка или вторичка. Нет значения — новостройка. */
+  market?: Market;
+  /** Объявление собственника/агентства из базы (а не демо-объект из кода). */
+  fromListing?: boolean;
+  /** Продавец объявления: собственник или агентство (для вторички и аренды от людей). */
+  seller?: { type: "owner" | "agent"; company?: string };
   title: string;
   district: DistrictSlug;
   /** Для sale — цена «от», для rent — цена в месяц. Целое число в единицах валюты. */

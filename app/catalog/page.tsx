@@ -5,11 +5,15 @@ import { AIAssistant } from "@/components/AIAssistant";
 import { CatalogView } from "@/components/catalog/CatalogView";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { getAllProperties } from "@/lib/data/properties";
 
 export const metadata: Metadata = {
   title: "Каталог недвижимости",
-  description: "Новостройки и аренда в Ташкенте с фильтрами по районам, комнатности и цене.",
+  description: "Новостройки, вторичное жильё и аренда в Ташкенте с фильтрами по районам, комнатности и цене.",
 };
+
+// Новые одобренные объявления появляются в каталоге в течение минуты
+export const revalidate = 60;
 
 function CatalogSkeleton() {
   return (
@@ -31,17 +35,18 @@ function CatalogSkeleton() {
   );
 }
 
-export default function CatalogPage() {
+export default async function CatalogPage() {
+  const properties = await getAllProperties();
   return (
     <>
       <SiteHeader />
       <main className="container pb-10 pt-6 sm:pt-10">
         <h1 className="text-2xl sm:text-3xl">Каталог недвижимости</h1>
-        <p className="mt-1 text-sm">Новостройки и аренда в Ташкенте</p>
+        <p className="mt-1 text-sm">Новостройки, вторичное жильё и аренда в Ташкенте</p>
 
         {/* useSearchParams внутри CatalogView требует Suspense, иначе Next.js не соберёт страницу статически */}
         <Suspense fallback={<CatalogSkeleton />}>
-          <CatalogView />
+          <CatalogView properties={properties} />
         </Suspense>
       </main>
       <SiteFooter />

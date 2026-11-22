@@ -27,6 +27,19 @@ export function publicStorageUrl(path: string): string {
   return `${URL_}/storage/v1/object/public/${LISTINGS_BUCKET}/${path}`;
 }
 
+/**
+ * Чтение строк через PostgREST. query — строка параметров без «?», напр. "status=eq.published&select=id,title".
+ * Результат кэшируется Next.js на revalidateSec секунд — база не дёргается на каждый показ страницы.
+ */
+export async function selectRows<T>(table: string, query: string, revalidateSec = 60): Promise<T[]> {
+  const res = await fetch(`${URL_}/rest/v1/${table}?${query}`, {
+    headers: { ...authHeaders(), Accept: "application/json" },
+    next: { revalidate: revalidateSec, tags: [table] },
+  });
+  if (!res.ok) throw new Error(`Select failed: ${res.status} ${await res.text().catch(() => "")}`);
+  return (await res.json()) as T[];
+}
+
 export async function insertRow<T extends Record<string, unknown>>(table: string, row: T): Promise<{ id: string }> {
   const res = await fetch(`${URL_}/rest/v1/${table}`, {
     method: "POST",

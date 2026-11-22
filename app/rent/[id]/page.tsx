@@ -1,44 +1,31 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { AIAssistant } from "@/components/AIAssistant";
-import { PropertyDetails } from "@/components/property/PropertyDetails";
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
-import { MOCK_PROPERTIES, getPropertyById } from "@/lib/mock-data";
+import { PropertyPage, propertyMetadata } from "@/components/property/PropertyPage";
+import { getProperty } from "@/lib/data/properties";
+import { MOCK_PROPERTIES } from "@/lib/mock-data";
+import { catalogKindOf } from "@/lib/types";
 
 interface Params {
   params: { id: string };
 }
 
-const TYPE = "rent" as const;
+const KIND = "rent" as const;
+
+// Демо-объекты собираются заранее; объекты из базы рендерятся по запросу
+export const revalidate = 60;
 
 export function generateStaticParams() {
-  return MOCK_PROPERTIES.filter((p) => p.type === TYPE).map((p) => ({ id: p.id }));
+  return MOCK_PROPERTIES.filter((p) => catalogKindOf(p) === KIND).map((p) => ({ id: p.id }));
 }
 
-export function generateMetadata({ params }: Params): Metadata {
-  const p = getPropertyById(decodeURIComponent(params.id));
-  if (!p || p.type !== TYPE) return { title: "Объект не найден" };
-  return {
-    title: p.title,
-    description: `${p.title} в Ташкенте${p.tour?.length ? " — 3D-тур 360°" : ""}. Фото, цена, расположение на карте.`,
-    openGraph: p.imageUrl ? { images: [{ url: p.imageUrl }] } : undefined,
-  };
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const p = await getProperty(decodeURIComponent(params.id));
+  return propertyMetadata(p && catalogKindOf(p) === KIND ? p : null);
 }
 
-export default function Page({ params }: Params) {
-  const property = getPropertyById(decodeURIComponent(params.id));
-  if (!property || property.type !== TYPE) notFound();
-  return (
-    <>
-      <SiteHeader />
-      <PropertyDetails property={property} />
-      <SiteFooter />
-      {/* На мобильном снизу липкая панель цены — поднимаем кнопку ассистента над ней */}
-      <div style={{ ["--ai-offset" as string]: "4.5rem" }}>
-        <AIAssistant propertyId={property.id} />
-      </div>
-    </>
-  );
+export default async function Page({ params }: Params) {
+  const property = await getProperty(decodeURIComponent(params.id));
+  if (!property || catalogKindOf(property) !== KIND) notFound();
+  return <PropertyPage property={property} />;
 }

@@ -308,11 +308,12 @@ export function propertyToContext(p: Property): string {
   const d = p.details;
   const parts: string[] = [
     `id=${p.id}`,
-    `${p.type === "sale" ? "SALE" : p.rentTerm === "day" ? "RENT/day" : "RENT/month"}`,
+    `${p.type === "sale" ? (p.market === "secondary" ? "SALE/secondary (resale from owner/agency)" : "SALE/new build") : p.rentTerm === "day" ? "RENT/day" : "RENT/month"}`,
+    p.fromListing ? `seller=${p.seller?.type === "agent" ? `agency${p.seller.company ? ` ${p.seller.company}` : ""}` : "owner"} (contact via SILKX only)` : "",
     p.title,
     `district=${p.district}`,
     p.address ? `address=${p.address}` : "",
-    `price=${p.price} ${p.currency}${p.type === "sale" ? " (from)" : p.rentTerm === "day" ? "/day" : "/month"}`,
+    `price=${p.price} ${p.currency}${p.type === "sale" ? (p.market === "secondary" ? "" : " (from)") : p.rentTerm === "day" ? "/day" : "/month"}`,
     `rooms=${p.rooms === 0 ? "studio" : p.rooms}`,
     `area=${p.areaM2}m2`,
     p.tags.length ? `tags=${p.tags.join("; ")}` : "",

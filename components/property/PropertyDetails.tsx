@@ -9,7 +9,7 @@ import { TourEmbed } from "@/components/tour/TourEmbed";
 import { formatPrice, formatRooms } from "@/lib/format";
 import { DEMO_GALLERY } from "@/lib/mock-data";
 import { SITE } from "@/lib/site-config";
-import { PROPERTY_CATEGORIES, TASHKENT_DISTRICTS } from "@/lib/types";
+import { CATALOG_KINDS, PROPERTY_CATEGORIES, TASHKENT_DISTRICTS, catalogHref, catalogKindOf } from "@/lib/types";
 import type { Property } from "@/lib/types";
 
 const DEFAULT_DESCRIPTION =
@@ -17,15 +17,18 @@ const DEFAULT_DESCRIPTION =
 
 export function PropertyDetails({ property: p }: { property: Property }) {
   const district = TASHKENT_DISTRICTS[p.district];
-  const images = [p.imageUrl, ...(p.gallery ?? DEMO_GALLERY)].filter((x): x is string => Boolean(x)).slice(0, 5);
+  const kind = catalogKindOf(p);
+  // Демо-галерея — только для демо-объектов; у реальных объявлений показываем лишь их собственные фото
+  const images = [p.imageUrl, ...(p.gallery ?? (p.fromListing ? [] : DEMO_GALLERY))].filter((x): x is string => Boolean(x)).slice(0, 5);
   const [cover, ...rest] = images;
   const tour = p.tour ?? [];
-  const price = p.rentTerm === "day" ? formatPrice(p.price, p.currency, p.type).replace("/ мес", "/ сутки") : formatPrice(p.price, p.currency, p.type);
+  const priceText = formatPrice(p.price, p.currency, p.type, { from: catalogKindOf(p) === "new" });
+  const price = p.rentTerm === "day" ? priceText.replace("/ мес", "/ сутки") : priceText;
 
   const facts = [
     p.category && { icon: Building2, label: "Тип", value: PROPERTY_CATEGORIES[p.category] },
     { icon: Layers, label: "Комнат", value: formatRooms(p.rooms) },
-    { icon: Maximize2, label: "Площадь", value: `${p.type === "sale" ? "от " : ""}${Math.round(p.areaM2)} м²` },
+    { icon: Maximize2, label: "Площадь", value: `${kind === "new" ? "от " : ""}${Math.round(p.areaM2)} м²` },
     p.floor !== undefined && { icon: Layers, label: "Этаж", value: p.floorsTotal ? `${p.floor} из ${p.floorsTotal}` : String(p.floor) },
   ].filter((f): f is { icon: typeof Building2; label: string; value: string } => Boolean(f));
 
@@ -34,11 +37,11 @@ export function PropertyDetails({ property: p }: { property: Property }) {
   return (
     <main className="container pb-cta-safe pt-6 sm:pb-16">
       <Link
-        href={p.type === "sale" ? "/catalog" : "/catalog?type=rent"}
+        href={catalogHref(kind)}
         className="inline-flex items-center gap-1.5 text-sm text-body transition-colors hover:text-gold"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        {p.type === "sale" ? "Все новостройки" : "Вся аренда"}
+        {CATALOG_KINDS[kind].all}
       </Link>
 
       {/* Галерея */}
@@ -128,6 +131,12 @@ export function PropertyDetails({ property: p }: { property: Property }) {
           <div className="terminal-panel hidden space-y-4 p-6 lg:block">
             <p className="text-xs uppercase tracking-wider text-body">{p.type === "sale" ? "Стоимость" : "Аренда"}</p>
             <p className="tabular font-heading text-3xl font-bold text-heading">{price}</p>
+            {p.fromListing && (
+              <p className="text-xs leading-relaxed">
+                {p.seller?.type === "agent" ? `Продаёт агентство${p.seller.company ? ` «${p.seller.company}»` : ""}` : "Продаёт собственник"}.
+                Связь — через SILKX: перед показом мы проверяем объект{kind === "secondary" ? " и документы (кадастр, собственники, обременения)" : ""}.
+              </p>
+            )}
             {tour.length > 0 && <TourButton scenes={tour} title={p.title} className="w-full" />}
             {contactHref && (
               <a

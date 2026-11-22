@@ -63,7 +63,7 @@ export function MyListings() {
                 <div className="min-w-0 sm:flex-1">
                   <p className="line-clamp-2 font-heading font-semibold text-heading">{it.title}</p>
                   <p className="mt-0.5 text-xs text-body">
-                    {formatPrice(it.price, it.currency, it.dealType)}
+                    {formatPrice(it.price, it.currency, it.dealType, { from: false })}
                     {it.district ? ` · ${TASHKENT_DISTRICTS[it.district]} р-н` : ""} · №&nbsp;{it.id} ·{" "}
                     {new Date(it.createdAt).toLocaleDateString("ru-RU")}
                   </p>

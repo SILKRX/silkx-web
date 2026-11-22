@@ -1,8 +1,8 @@
 // Логика фильтров каталога: чистые функции без React — легко тестировать
 // и переиспользовать (главная собирает ту же строку URL, что читает каталог).
 
-import { isDistrictSlug } from "@/lib/types";
-import type { DealType, DistrictSlug, Property } from "@/lib/types";
+import { catalogKindOf, isDistrictSlug } from "@/lib/types";
+import type { CatalogKind, DistrictSlug, Property } from "@/lib/types";
 
 export const ROOM_OPTIONS = [
   { value: 0, label: "Студия" },
@@ -33,13 +33,15 @@ export function isSortOption(value: string | null): value is SortOption {
 }
 
 /** Подсказки диапазонов цен (USD) — у продажи и аренды разные масштабы. */
-export const PRICE_HINTS: Record<DealType, { min: string; max: string; unit: string }> = {
-  sale: { min: "от 30 000", max: "до 500 000", unit: "USD" },
+export const PRICE_HINTS: Record<CatalogKind, { min: string; max: string; unit: string }> = {
+  new: { min: "от 30 000", max: "до 500 000", unit: "USD" },
+  secondary: { min: "от 20 000", max: "до 500 000", unit: "USD" },
   rent: { min: "от 300", max: "до 3 000", unit: "USD/мес" },
 };
 
 export interface CatalogFilters {
-  type: DealType;
+  /** Раздел каталога: новостройки, вторичка или аренда (параметр URL type=). */
+  type: CatalogKind;
   district: DistrictSlug | null;
   rooms: RoomOption[];
   priceMin: number | null;
@@ -48,7 +50,7 @@ export interface CatalogFilters {
 }
 
 export const DEFAULT_FILTERS: CatalogFilters = {
-  type: "sale",
+  type: "new",
   district: null,
   rooms: [],
   priceMin: null,
@@ -79,12 +81,18 @@ function parseRooms(raw: string | null): RoomOption[] {
   return Array.from(unique).sort((a, b) => a - b);
 }
 
+function parseKind(raw: string | null): CatalogKind {
+  if (raw === "rent" || raw === "secondary") return raw;
+  return "new";
+}
+
 /** URL → фильтры. Любой мусор в URL превращается в значение по умолчанию, а не в ошибку. */
 export function parseFilters(params: ParamsReader): CatalogFilters {
   const district = params.get("district");
   const sort = params.get("sort");
   return {
-    type: params.get("type") === "rent" ? "rent" : "sale",
+    // «sale» — старые ссылки на новостройки; всё неизвестное — тоже новостройки
+    type: parseKind(params.get("type")),
     district: district && isDistrictSlug(district) ? district : null,
     rooms: parseRooms(params.get("rooms")),
     priceMin: parsePrice(params.get("priceMin")),
@@ -96,7 +104,7 @@ export function parseFilters(params: ParamsReader): CatalogFilters {
 /** Фильтры → URL. Значения по умолчанию не пишем — ссылки короче и канонические. */
 export function serializeFilters(filters: CatalogFilters): URLSearchParams {
   const params = new URLSearchParams();
-  if (filters.type !== "sale") params.set("type", filters.type);
+  if (filters.type !== "new") params.set("type", filters.type);
   if (filters.district) params.set("district", filters.district);
   if (filters.rooms.length > 0) {
     params.set("rooms", [...filters.rooms].sort((a, b) => a - b).join(","));
@@ -124,7 +132,7 @@ export function applyFilters(items: readonly Property[], filters: CatalogFilters
   const { min, max } = getPriceBounds(filters);
 
   const result = items.filter((p) => {
-    if (p.type !== filters.type) return false;
+    if (catalogKindOf(p) !== filters.type) return false;
     if (filters.district && p.district !== filters.district) return false;
     if (
       filters.rooms.length > 0 &&

@@ -3,15 +3,17 @@ import { NextResponse } from "next/server";
 
 import { fallbackReply } from "@/lib/assistant-fallback";
 import { faqReply, normalizeQuestion } from "@/lib/assistant-faq";
+import { getAllProperties } from "@/lib/data/properties";
 import { HOTELS, getHotelById, hotelMinPrice } from "@/lib/hotels";
-import { MOCK_PROPERTIES, getPropertyById } from "@/lib/mock-data";
+import { MOCK_PROPERTIES } from "@/lib/mock-data";
 import { ASSISTANT_LANGS, CREDIT_RULES, propertyToContext } from "@/lib/property-details";
 import type { AssistantLang } from "@/lib/property-details";
 import { getCachedAnswer, setCachedAnswer } from "@/lib/server/answer-cache";
 import { redactPII } from "@/lib/server/redact";
 import { clientIp, rateLimit } from "@/lib/server/rate-limit";
 import { SITE } from "@/lib/site-config";
-import { TASHKENT_DISTRICTS } from "@/lib/types";
+import { TASHKENT_DISTRICTS, propertyPath } from "@/lib/types";
+import type { Property } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -56,7 +58,16 @@ const STABLE_SYSTEM = (() => {
   const catalog = MOCK_PROPERTIES.map((p) => `- ${propertyToContext(p)}`).join("\n");
   const hotels = HOTELS.map((h) => `- ${hotelToContext(h)}`).join("\n");
   return `You are SILKX AI, the voice-and-chat property assistant of SILKX — a digital real estate boutique in Tashkent, Uzbekistan
-(new developments for sale, long-term rentals, student housing, short-term stays and hotels for visitors).
+(new developments for sale, resale/secondary homes from owners and agencies, long-term rentals, student housing, short-term stays and hotels for visitors).
+
+THREE SECTIONS OF THE CATALOG:
+- New builds ("Новостройки"): sold by developers at direct prices, often with installment plans; the state mortgage program applies only here.
+- Resale / secondary housing ("Вторичка", uz "ikkilamchi uy-joy"): finished apartments and houses sold by owners or agencies; you can move in right away.
+  Before a purchase SILKX checks the documents: cadastral passport / ownership certificate, all owners' consent, no pledge or arrest (encumbrance).
+  Mortgage for resale: no state program — only commercial mortgages of individual banks; say so and suggest checking with a bank.
+  Foreigners may buy only NEW housing — never recommend resale homes for purchase to a foreigner; suggest new builds or renting instead.
+  The seller's phone is never shown: viewings are arranged through SILKX (Telegram or the request form).
+- Rent ("Аренда"): monthly or daily, from owners and agencies.
 
 LANGUAGE: Reply in the language named in the "Session" note that follows, even if the catalog data is in Russian. Translate property facts naturally.
 
@@ -64,7 +75,7 @@ STYLE: Your reply may be read aloud by text-to-speech. Write 2–6 short sentenc
 no markdown, no tables, no URLs, no emoji. Prices: keep the original currency; for UZS say "million sum".
 Be warm and precise, like a top real estate consultant.
 
-FACTS — use ONLY the catalog and hotel list below. Never invent properties, hotels, prices, banks, documents or availability.
+FACTS — use ONLY the catalog, the live owner listings (in the next block) and the hotel list. Never invent properties, hotels, prices, banks, documents or availability.
 If something isn't in the data, say you'll check with the owner/manager and suggest leaving a request on Telegram.
 
 CREDIT / MORTGAGE RULES (Uzbekistan, state mortgage program for the primary market):
@@ -98,6 +109,18 @@ HOTELS:
 ${hotels}`;
 })();
 
+/** Живые объявления из базы (вторичка, аренда от людей) — отдельный блок ПОСЛЕ точки кэширования. */
+function listingsNote(all: readonly Property[]): string {
+  const listings = all.filter((p) => p.fromListing && p.status !== "reserved");
+  if (!listings.length) {
+    return "LIVE OWNER LISTINGS: none published yet. For resale requests, explain that listings appear after moderation and offer to leave a request (district, budget, rooms) so a SILKX realtor finds options.";
+  }
+  return `LIVE OWNER LISTINGS (verified by SILKX moderators; ids can be used in the IDS line):\n${listings
+    .slice(0, 60)
+    .map((p) => `- ${propertyToContext(p)}`)
+    .join("\n")}`;
+}
+
 /** Изменчивая часть — ПОСЛЕ точки кэширования, чтобы не ломать кэш стабильного префикса. */
 function sessionNote(lang: AssistantLang, currentId: string | null): string {
   return `Session: reply in ${LANG_NAME[lang]}.${
@@ -124,15 +147,15 @@ const SPECIFIC_RE = new RegExp(
 
 type Item = { id: string; title: string; href: string; price: number; currency: "USD" | "UZS"; type: "sale" | "rent" };
 
-/** id → карточки-ссылки для чата (объекты каталога и отели). */
-function toItems(ids: string[]): Item[] {
+/** id → карточки-ссылки для чата (объекты каталога, объявления и отели). */
+function toItems(ids: string[], all: readonly Property[]): Item[] {
   return ids.flatMap((id): Item[] => {
-    const p = getPropertyById(id);
+    const p = all.find((x) => x.id === id);
     if (p) {
       return [{
         id: p.id,
         title: p.title,
-        href: p.type === "sale" ? `/complex/${encodeURIComponent(p.id)}` : `/rent/${encodeURIComponent(p.id)}`,
+        href: propertyPath(p),
         price: p.price,
         currency: p.currency,
         type: p.type,
@@ -153,9 +176,8 @@ function respond(reply: string, items: Item[], mode: Mode) {
   return NextResponse.json({ ok: true, reply, items, mode });
 }
 
-const KNOWN_IDS = new Set<string>([...MOCK_PROPERTIES.map((p) => p.id), ...HOTELS.map((h) => h.id)]);
-
-function parseReply(raw: string): { reply: string; ids: string[] } {
+function parseReply(raw: string, all: readonly Property[]): { reply: string; ids: string[] } {
+  const KNOWN_IDS = new Set<string>([...all.map((p) => p.id), ...HOTELS.map((h) => h.id)]);
   const m = /\n?\s*IDS:\s*([^\n]+)\s*$/i.exec(raw.trim());
   const ids = m?.[1]
     ? m[1]
@@ -182,9 +204,12 @@ export async function POST(req: Request) {
   }
   const b = (typeof body === "object" && body !== null ? body : {}) as Record<string, unknown>;
 
+  // Демо-объекты + одобренные объявления из базы (кэш 60 с; при сбое базы — только демо)
+  const all = await getAllProperties();
+
   const lang: AssistantLang = (ASSISTANT_LANGS as readonly string[]).includes(String(b.lang)) ? (b.lang as AssistantLang) : "ru";
   const currentId =
-    typeof b.propertyId === "string" && (getPropertyById(b.propertyId) || getHotelById(b.propertyId)) ? b.propertyId : null;
+    typeof b.propertyId === "string" && (all.some((p) => p.id === b.propertyId) || getHotelById(b.propertyId)) ? b.propertyId : null;
   const messages: InMessage[] = (Array.isArray(b.messages) ? b.messages : [])
     .filter(
       (m): m is InMessage =>
@@ -210,8 +235,8 @@ export async function POST(req: Request) {
 
   // Без ключа — работаем на встроенных правилах по тем же данным
   if (!client) {
-    const r = fallbackReply(last.text, lang, currentId);
-    return respond(r.reply, toItems(r.ids), "offline");
+    const r = fallbackReply(last.text, lang, currentId, all);
+    return respond(r.reply, toItems(r.ids, all), "offline");
   }
 
   // 2) Кэш ответов ИИ: первый вопрос диалога с тем же смыслом → готовый ответ без запроса к API
@@ -219,7 +244,7 @@ export async function POST(req: Request) {
   const cacheKey = `${lang}|${currentId ?? ""}|${normalized}`;
   if (isFirstQuestion) {
     const cached = getCachedAnswer(cacheKey);
-    if (cached) return respond(cached.reply, toItems(cached.ids), "cache");
+    if (cached) return respond(cached.reply, toItems(cached.ids, all), "cache");
   }
 
   // 3) Claude API. Стабильный system prompt кэшируется Anthropic (prompt caching) — дешевле и быстрее
@@ -230,6 +255,7 @@ export async function POST(req: Request) {
       output_config: { effort: "low" }, // чат: короткие ответы, низкая задержка
       system: [
         { type: "text", text: STABLE_SYSTEM, cache_control: { type: "ephemeral" } },
+        { type: "text", text: listingsNote(all) },
         { type: "text", text: sessionNote(lang, currentId) },
       ],
       // Телефоны и e-mail ассистенту не нужны — не передаём их за рубеж
@@ -243,16 +269,16 @@ export async function POST(req: Request) {
       .join("\n");
     if (!text) throw new Error(`Empty reply (stop_reason=${response.stop_reason})`);
 
-    const parsed = parseReply(text);
+    const parsed = parseReply(text, all);
     if (isFirstQuestion) setCachedAnswer(cacheKey, parsed);
-    return respond(parsed.reply, toItems(parsed.ids), "ai");
+    return respond(parsed.reply, toItems(parsed.ids, all), "ai");
   } catch (err) {
     if (err instanceof Anthropic.AuthenticationError) console.error("[assistant] invalid ANTHROPIC_API_KEY");
     else if (err instanceof Anthropic.RateLimitError) console.error("[assistant] Claude API rate limited");
     else if (err instanceof Anthropic.APIError) console.error(`[assistant] Claude API ${err.status}:`, err.message);
     else console.error("[assistant]", err);
     // Сбой API — не оставляем человека без ответа
-    const r = fallbackReply(last.text, lang, currentId);
-    return respond(r.reply, toItems(r.ids), "offline");
+    const r = fallbackReply(last.text, lang, currentId, all);
+    return respond(r.reply, toItems(r.ids, all), "offline");
   }
 }

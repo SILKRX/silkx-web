@@ -11,6 +11,7 @@ const COLUMNS: ReadonlyArray<{ title: string; links: ReadonlyArray<{ href: strin
     title: "Каталог",
     links: [
       { href: "/catalog", label: "Новостройки" },
+      { href: "/catalog?type=secondary", label: "Вторичка" },
       { href: "/catalog?type=rent", label: "Аренда" },
       { href: "/hotels", label: "Отели" },
       { href: "/catalog?type=rent", label: "Жильё для студентов" },

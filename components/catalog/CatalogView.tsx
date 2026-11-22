@@ -22,9 +22,8 @@ import {
 } from "@/lib/catalog-filters";
 import type { CatalogFilters, RoomOption } from "@/lib/catalog-filters";
 import { pluralize } from "@/lib/format";
-import { MOCK_PROPERTIES } from "@/lib/mock-data";
-import { DISTRICT_SLUGS, TASHKENT_DISTRICTS, isDistrictSlug } from "@/lib/types";
-import type { DealType } from "@/lib/types";
+import { CATALOG_KINDS, DISTRICT_SLUGS, TASHKENT_DISTRICTS, catalogKindOf, isDistrictSlug, propertyPath } from "@/lib/types";
+import type { CatalogKind, Property } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const URL_SYNC_DELAY_MS = 300; // не спамим историю/роутер на каждый символ цены
@@ -48,7 +47,15 @@ function FilterGroup({ label, htmlFor, children }: { label: string; htmlFor?: st
   );
 }
 
-export function CatalogView() {
+export interface CatalogViewProps {
+  /** Все объекты каталога (демо + объявления из базы) — загружаются на сервере. */
+  properties: readonly Property[];
+}
+
+/** Куда предложить перейти, если в разделе пусто. */
+const NEXT_KIND: Record<CatalogKind, CatalogKind> = { new: "secondary", secondary: "rent", rent: "new" };
+
+export function CatalogView({ properties }: CatalogViewProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -85,7 +92,7 @@ export function CatalogView() {
   }, [filters, pathname, router]);
 
   // ---- Обработчики ----
-  const setType = useCallback((type: DealType) => {
+  const setType = useCallback((type: CatalogKind) => {
     // У продажи и аренды разный масштаб цен — старый диапазон даст пустую выдачу
     setFilters((prev) => (prev.type === type ? prev : { ...prev, type, priceMin: null, priceMax: null }));
   }, []);
@@ -113,10 +120,10 @@ export function CatalogView() {
   }, []);
 
   // ---- Производные данные ----
-  const results = useMemo(() => applyFilters(MOCK_PROPERTIES, filters), [filters]);
+  const results = useMemo(() => applyFilters(properties, filters), [properties, filters]);
   const totalForType = useMemo(
-    () => MOCK_PROPERTIES.filter((p) => p.type === filters.type).length,
-    [filters.type],
+    () => properties.filter((p) => catalogKindOf(p) === filters.type).length,
+    [properties, filters.type],
   );
   const activeCount = countActiveFilters(filters);
   const { swapped } = getPriceBounds(filters);
@@ -156,7 +163,7 @@ export function CatalogView() {
           id={panelId}
           className={cn("terminal-panel mt-3 space-y-6 p-4 md:mt-0 md:block", filtersOpen ? "block" : "hidden")}
         >
-          <FilterGroup label="Тип сделки">
+          <FilterGroup label="Раздел">
             <DealTypeSwitch value={filters.type} onChange={setType} fullWidth />
           </FilterGroup>
 
@@ -309,6 +316,9 @@ export function CatalogView() {
                 rooms={p.rooms}
                 areaM2={p.areaM2}
                 has3dTour={Boolean(p.tour?.length)}
+                kindLabel={CATALOG_KINDS[catalogKindOf(p)].one}
+                areaFrom={catalogKindOf(p) === "new"}
+                href={propertyPath(p)}
                 priority={index < 2}
               />
             ))}
@@ -335,14 +345,28 @@ export function CatalogView() {
               </>
             ) : (
               <>
-                <p className="mt-2 max-w-sm text-sm">В этой категории пока нет объектов — скоро добавим.</p>
-                <button
-                  type="button"
-                  onClick={() => setType(filters.type === "sale" ? "rent" : "sale")}
-                  className="mt-6 flex h-11 items-center rounded-lg bg-gold px-6 text-sm font-semibold text-graphite transition-colors hover:bg-gold-hover"
-                >
-                  Смотреть {filters.type === "sale" ? "аренду" : "новостройки"}
-                </button>
+                <p className="mt-2 max-w-sm text-sm">
+                  {filters.type === "secondary"
+                    ? "Вторичное жильё появляется здесь после проверки модератором SILKX. Продаёте квартиру? Разместите объявление бесплатно."
+                    : "В этой категории пока нет объектов — скоро добавим."}
+                </p>
+                <div className="mt-6 flex flex-wrap justify-center gap-2">
+                  {filters.type === "secondary" && (
+                    <a
+                      href="/add"
+                      className="flex h-11 items-center rounded-lg border border-gold/40 px-6 text-sm font-semibold text-gold transition-colors hover:border-gold"
+                    >
+                      Разместить объект
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setType(NEXT_KIND[filters.type])}
+                    className="flex h-11 items-center rounded-lg bg-gold px-6 text-sm font-semibold text-graphite transition-colors hover:bg-gold-hover"
+                  >
+                    Смотреть: {CATALOG_KINDS[NEXT_KIND[filters.type]].label.toLowerCase()}
+                  </button>
+                </div>
               </>
             )}
           </div>

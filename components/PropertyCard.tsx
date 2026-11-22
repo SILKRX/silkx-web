@@ -25,6 +25,10 @@ export interface PropertyCardProps {
   areaM2?: number;
   /** Есть 3D-тур 360° — показываем бейдж на фото. */
   has3dTour?: boolean;
+  /** Подпись раздела на карточке («Новостройка», «Вторичка», «Аренда»). */
+  kindLabel?: string;
+  /** Площадь «от» (новостройки — минимальная планировка). По умолчанию — для продажи. */
+  areaFrom?: boolean;
   /** Куда ведёт карточка. По умолчанию — страница объекта. */
   href?: string;
   /** true для карточек в первом экране — грузим картинку без lazy (лучше LCP). */
@@ -80,6 +84,8 @@ function PropertyCardComponent({
   rooms,
   areaM2,
   has3dTour = false,
+  kindLabel,
+  areaFrom,
   href,
   priority = false,
   className,
@@ -101,12 +107,12 @@ function PropertyCardComponent({
 
   const meta: string[] = [];
   if (typeof rooms === "number") meta.push(formatRooms(rooms));
-  if (typeof areaM2 === "number" && areaM2 > 0) meta.push(`${type === "sale" ? "от " : ""}${Math.round(areaM2)} м²`);
+  if (typeof areaM2 === "number" && areaM2 > 0) meta.push(`${(areaFrom ?? type === "sale") ? "от " : ""}${Math.round(areaM2)} м²`);
 
   return (
     <Link
       href={link}
-      aria-label={`${title}, ${districtLabel} район, ${formatPrice(price, currency, type)}`}
+      aria-label={`${title}, ${districtLabel} район, ${formatPrice(price, currency, type, { from: areaFrom })}`}
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-lg border border-line/5 bg-card",
         "transition-[box-shadow,transform,border-color] duration-300 ease-out",
@@ -160,7 +166,7 @@ function PropertyCardComponent({
         )}
 
         <span className="absolute right-3 top-3 rounded-full bg-graphite/70 px-2.5 py-1 text-[11px] font-medium leading-none text-white backdrop-blur-sm">
-          {TYPE_LABEL[type]}
+          {kindLabel ?? TYPE_LABEL[type]}
         </span>
       </div>
 
@@ -194,7 +200,7 @@ function PropertyCardComponent({
 
         <div className="mt-auto flex items-end justify-between gap-3 border-t border-line/5 pt-3">
           <p className="tabular font-heading text-lg font-bold leading-none text-heading">
-            {formatPrice(price, currency, type)}
+            {formatPrice(price, currency, type, { from: areaFrom })}
           </p>
           {meta.length > 0 && <p className="shrink-0 text-xs text-body">{meta.join(" · ")}</p>}
         </div>

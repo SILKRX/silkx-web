@@ -30,6 +30,7 @@ const L = {
   hotels: { href: "/hotels", title: { ru: "Отели Ташкента", uz: "Toshkent mehmonxonalari", en: "Hotels in Tashkent", zh: "塔什干酒店", ko: "타슈켄트 호텔", tr: "Taşkent otelleri" } },
   add: { href: "/add", title: { ru: "Разместить объект", uz: "E'lon joylash", en: "List a property", zh: "发布房源", ko: "매물 등록", tr: "İlan ver" } },
   catalog: { href: "/catalog", title: { ru: "Новостройки", uz: "Yangi uylar", en: "New developments", zh: "新楼盘", ko: "신축 단지", tr: "Yeni projeler" } },
+  secondary: { href: "/catalog?type=secondary", title: { ru: "Вторичное жильё", uz: "Ikkilamchi uy-joy", en: "Resale homes", zh: "二手房", ko: "재고 주택", tr: "İkinci el konut" } },
   rent: { href: "/catalog?type=rent", title: { ru: "Аренда", uz: "Ijara", en: "Rentals", zh: "租房", ko: "임대", tr: "Kiralık" } },
 } satisfies Record<string, FaqLink>;
 
@@ -171,8 +172,28 @@ export const FAQ: readonly FaqEntry[] = [
       tr: "Rusça, Özbekçe, İngilizce, Çince, Korece ve Türkçe yanıt veriyorum; dili sohbetin üstünden değiştirebilirsiniz. Mikrofona basarak sesli de konuşabilirsiniz.",
     },
   },
+  {
+    id: "secondary",
+    patterns: [
+      /(что такое|чем отлича\p{L}*|есть ли|есть|где|как купить|покупка|хочу) .{0,20}втори\p{L}*/u,
+      /^втори\p{L}*( жиль\p{L}*| рын\p{L}*| квартир\p{L}*)?$/u,
+      /ikkilamchi/u,
+      /\b(resale|second ?hand|secondary (home|housing|market|apartment)s?)\b/u,
+      /二手房/u,
+      /재고 ?주택|구축 ?아파트/u,
+      /ikinci el (konut|ev|daire)/u,
+    ],
+    answer: {
+      ru: "Вторичка — это готовые квартиры и дома от собственников и агентств: можно въехать сразу. В SILKX объявление появляется только после проверки модератором, а перед покупкой мы проверяем документы — кадастр, всех собственников и отсутствие залога или ареста. Госпрограмма ипотеки действует только для новостроек; на вторичку — коммерческая ипотека отдельных банков. Иностранцы могут покупать только новое жильё.",
+      uz: "Ikkilamchi uy-joy — egalari va agentliklardan tayyor kvartira va uylar: darhol ko'chib o'tish mumkin. SILKX'da e'lon faqat moderatsiyadan keyin chiqadi, sotib olishdan oldin hujjatlarni tekshiramiz — kadastr, barcha egalar, garov yoki taqiq yo'qligi. Davlat ipoteka dasturi faqat yangi uylarga; ikkilamchiga — ayrim banklarning tijorat ipotekasi. Chet elliklar faqat yangi uy-joy sotib olishi mumkin.",
+      en: "Resale (secondary) homes are finished apartments and houses sold by owners and agencies — you can move in right away. On SILKX a listing appears only after moderation, and before a purchase we check the documents: cadastre, all owners, and no pledge or arrest. The state mortgage program covers only new builds; for resale there are commercial mortgages from individual banks. Foreigners may buy only new housing.",
+      zh: "二手房是业主和中介出售的现房，可立即入住。在 SILKX 上，房源经审核后才会上线；购买前我们会核查产权证明、全部业主以及是否有抵押或查封。国家按揭计划仅适用于新房；二手房只能申请个别银行的商业贷款。外国人只能购买新房。",
+      ko: "재고 주택은 집주인과 중개업체가 파는 완공된 아파트·주택으로 바로 입주할 수 있어요. SILKX에서는 검수를 마친 매물만 공개되고, 구매 전에 등기, 모든 소유자, 담보·압류 여부를 확인해 드려요. 정부 주택담보대출은 신축에만 적용되고, 재고 주택은 일부 은행의 상업 대출만 가능해요. 외국인은 신축만 구매할 수 있어요.",
+      tr: "İkinci el konut, ev sahipleri ve emlakçıların sattığı hazır daire ve evlerdir — hemen taşınabilirsiniz. SILKX'te ilan yalnızca moderasyondan sonra yayınlanır; satın almadan önce tapu, tüm malikler ve ipotek ya da haciz olmadığını kontrol ederiz. Devlet konut kredisi yalnızca yeni konutlar için geçerlidir; ikinci el için bazı bankaların ticari kredileri vardır. Yabancılar yalnızca yeni konut alabilir.",
+    },
+    links: [L.secondary, L.add],
+  },
 ];
-
 /** Нормализация для сопоставления: регистр, «ё», пунктуация, повторные пробелы. Буквы любых алфавитов сохраняются. */
 export function normalizeQuestion(text: string): string {
   return text

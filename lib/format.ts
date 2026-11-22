@@ -21,11 +21,13 @@ export function formatNumber(value: number): string {
  *  rent → "$600 / мес"
  * Невалидная цена (0, NaN, отрицательная) → "Цена по запросу" — это ещё и повод оставить заявку.
  */
-export function formatPrice(price: number, currency: Currency, type: DealType): string {
+export function formatPrice(price: number, currency: Currency, type: DealType, opts: { from?: boolean } = {}): string {
   if (!Number.isFinite(price) || price <= 0) return "Цена по запросу";
   const { prefix, suffix } = CURRENCY_LABEL[currency];
   const amount = `${prefix}${formatNumber(price)}${suffix}`;
-  return type === "sale" ? `от ${amount}` : `${amount} / мес`;
+  // «от» — только у новостроек (цена минимальной планировки); у вторички цена точная
+  if (type === "sale") return (opts.from ?? true) ? `от ${amount}` : amount;
+  return `${amount} / мес`;
 }
 
 const pluralRules = new Intl.PluralRules("ru-RU");
