@@ -9,8 +9,9 @@ export interface SiteConfig {
   email: string;
   socials: Record<"telegram" | "instagram" | "linkedin" | "facebook", string>;
   /**
-   * true — объекты, отели, телефоны и фото на сайте ДЕМОНСТРАЦИОННЫЕ: над шапкой показывается предупреждение,
-   * чтобы не вводить посетителей в заблуждение. Выключите (false), когда загрузите реальные данные партнёров.
+   * true — жёлтая полоса «Демо-версия» над шапкой. Сейчас выключена: вместо неё демо-объекты и демо-отели
+   * помечены маленьким значком «Пример» прямо на карточке и странице (см. HOTELS_ARE_DEMO в lib/hotels.ts
+   * и Property.fromListing). Значки исчезнут сами, когда демо-данные заменят реальными.
    */
   demoContent: boolean;
 }
@@ -26,7 +27,7 @@ export const SITE: SiteConfig = {
     linkedin: "https://www.linkedin.com/company/silkxofficial/",
     facebook: "https://www.facebook.com/profile.php?id=61595846581408",
   },
-  demoContent: true,
+  demoContent: false,
 };
 
 export type SocialKey = keyof SiteConfig["socials"];

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { formatNumber } from "@/lib/format";
-import { hotelMinPrice, hotelRoomsCount } from "@/lib/hotels";
+import { HOTELS_ARE_DEMO, hotelMinPrice, hotelRoomsCount } from "@/lib/hotels";
 import type { Hotel } from "@/lib/hotels";
 import { TASHKENT_DISTRICTS } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -52,6 +52,11 @@ export function HotelCard({ hotel: h, priority = false, className }: { hotel: Ho
           />
         )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+        {HOTELS_ARE_DEMO && (
+          <span className="absolute left-3 top-3 rounded-full bg-graphite/75 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+            Пример
+          </span>
+        )}
         {h.rating && (
           <span className="absolute right-3 top-3 rounded-full bg-graphite/75 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
             {h.rating.score.toFixed(1)}/{h.rating.outOf} · {formatNumber(h.rating.count)} отзывов · {h.rating.source}

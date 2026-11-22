@@ -317,6 +317,7 @@ export function CatalogView({ properties }: CatalogViewProps) {
                 areaM2={p.areaM2}
                 has3dTour={Boolean(p.tour?.length)}
                 kindLabel={CATALOG_KINDS[catalogKindOf(p)].one}
+                demo={!p.fromListing}
                 areaFrom={catalogKindOf(p) === "new"}
                 href={propertyPath(p)}
                 priority={index < 2}

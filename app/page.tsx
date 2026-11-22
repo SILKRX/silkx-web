@@ -149,6 +149,7 @@ export default function HomePage() {
                   rooms={p.rooms}
                   areaM2={p.areaM2}
                   has3dTour={Boolean(p.tour?.length)}
+                  demo
                 />
               ))}
             </div>

@@ -64,6 +64,11 @@ export function PropertyDetails({ property: p }: { property: Property }) {
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
         <div className="min-w-0 space-y-10">
           <header>
+            {!p.fromListing && (
+              <p className="mb-2 inline-flex rounded-md bg-line/5 px-2.5 py-1 text-xs text-body">
+                Пример объекта: название, цена и фото — демонстрационные
+              </p>
+            )}
             <h1 className="text-2xl sm:text-4xl">{p.title}</h1>
             <p className="mt-2 flex items-center gap-1.5 text-sm">
               <MapPin className="h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
