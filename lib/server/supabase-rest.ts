@@ -52,3 +52,23 @@ export async function insertRow<T extends Record<string, unknown>>(table: string
   if (!first) throw new Error("Insert returned no rows");
   return first;
 }
+
+/** Чтение без кэша (админка: всегда свежие данные). */
+export async function selectRowsFresh<T>(table: string, query: string): Promise<T[]> {
+  const res = await fetch(`${URL_}/rest/v1/${table}?${query}`, {
+    headers: { ...authHeaders(), Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Select failed: ${res.status} ${await res.text().catch(() => "")}`);
+  return (await res.json()) as T[];
+}
+
+/** Обновление строки по id. */
+export async function updateRow(table: string, id: string, patch: Record<string, unknown>): Promise<void> {
+  const res = await fetch(`${URL_}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { ...authHeaders(), "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) throw new Error(`Update failed: ${res.status} ${await res.text().catch(() => "")}`);
+}
