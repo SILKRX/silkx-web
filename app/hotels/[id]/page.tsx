@@ -8,15 +8,15 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { HOTELS, getHotelById } from "@/lib/hotels";
 
 interface Params {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export function generateStaticParams() {
   return HOTELS.map((h) => ({ id: h.id }));
 }
 
-export function generateMetadata({ params }: Params): Metadata {
-  const h = getHotelById(decodeURIComponent(params.id));
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const h = getHotelById(decodeURIComponent((await params).id));
   if (!h) return { title: "Отель не найден" };
   return {
     title: `${h.name} — номера, 3D-тур и бронирование`,
@@ -25,8 +25,8 @@ export function generateMetadata({ params }: Params): Metadata {
   };
 }
 
-export default function Page({ params }: Params) {
-  const hotel = getHotelById(decodeURIComponent(params.id));
+export default async function Page({ params }: Params) {
+  const hotel = getHotelById(decodeURIComponent((await params).id));
   if (!hotel) notFound();
   return (
     <>
