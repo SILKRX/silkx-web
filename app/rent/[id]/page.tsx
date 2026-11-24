@@ -7,7 +7,7 @@ import { MOCK_PROPERTIES } from "@/lib/mock-data";
 import { catalogKindOf } from "@/lib/types";
 
 interface Params {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 const KIND = "rent" as const;
@@ -20,12 +20,12 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const p = await getProperty(decodeURIComponent(params.id));
+  const p = await getProperty(decodeURIComponent((await params).id));
   return propertyMetadata(p && catalogKindOf(p) === KIND ? p : null);
 }
 
 export default async function Page({ params }: Params) {
-  const property = await getProperty(decodeURIComponent(params.id));
+  const property = await getProperty(decodeURIComponent((await params).id));
   if (!property || catalogKindOf(property) !== KIND) notFound();
   return <PropertyPage property={property} />;
 }

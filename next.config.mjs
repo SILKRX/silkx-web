@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
   images: {
     formats: ["image/avif", "image/webp"],
     // Набор ширин под реальные макеты (карточки 1–4 в ряд, галерея, обложка) — меньше лишних вариантов
@@ -18,7 +19,17 @@ const nextConfig = {
   // Статика без хеша в имени: кэш на неделю + фоновое обновление
   async headers() {
     const cache = [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }];
+    // Базовые заголовки безопасности для всех страниц
+    const security = [
+      { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "X-Frame-Options", value: "SAMEORIGIN" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      { key: "Permissions-Policy", value: "camera=(), geolocation=(self), microphone=(self), payment=()" },
+      { key: "Content-Security-Policy", value: "frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'" },
+    ];
     return [
+      { source: "/:path*", headers: security },
       { source: "/tours/:path*", headers: cache },
       { source: "/brand/:path*", headers: cache },
     ];

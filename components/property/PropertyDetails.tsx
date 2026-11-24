@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { PropertyMap } from "@/components/map/PropertyMap";
+import { LeadForm } from "@/components/property/LeadForm";
 import { PropertyInfo } from "@/components/property/PropertyInfo";
 import { TourButton } from "@/components/tour/TourButton";
 import { TourEmbed } from "@/components/tour/TourEmbed";
@@ -148,13 +149,15 @@ export function PropertyDetails({ property: p }: { property: Property }) {
                 href={contactHref}
                 target={contactHref.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-gold font-heading font-semibold text-graphite transition-colors hover:bg-gold-hover"
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-gold/40 bg-gold-muted font-heading text-sm font-semibold text-gold transition-colors hover:border-gold"
               >
                 <Send className="h-4 w-4" aria-hidden="true" />
-                Записаться на просмотр
+                Написать в Telegram
               </a>
             )}
           </div>
+          {/* Заявка: на десктопе — под ценой, на мобильном — в конце страницы (к ней ведёт кнопка в нижней панели) */}
+          <LeadForm propertyId={p.id} defaultIntent={kind === "secondary" ? "documents" : "viewing"} className="mt-4" />
         </aside>
       </div>
 
@@ -163,17 +166,13 @@ export function PropertyDetails({ property: p }: { property: Property }) {
         {tour.length > 0 && (
           <TourButton scenes={tour} title={p.title} className="h-11 px-3 text-sm" />
         )}
-        {contactHref && (
-          <a
-            href={contactHref}
-            target={contactHref.startsWith("http") ? "_blank" : undefined}
-            rel="noopener noreferrer"
-            className="flex h-11 items-center gap-2 rounded-lg bg-gold px-4 font-heading text-sm font-semibold text-graphite"
-          >
-            <Send className="h-4 w-4" aria-hidden="true" />
-            Написать
-          </a>
-        )}
+        <a
+          href="#lead"
+          className="flex h-11 items-center gap-2 rounded-lg bg-gold px-4 font-heading text-sm font-semibold text-graphite"
+        >
+          <Send className="h-4 w-4" aria-hidden="true" />
+          Заявка
+        </a>
       </div>
     </main>
   );
