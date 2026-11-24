@@ -1,27 +1,20 @@
 import { Plus, UserRound } from "lucide-react";
 import Link from "next/link";
 
+import { FavoritesLink, HeaderLinks, ScrollHeader } from "@/components/HeaderNav";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 import { SITE } from "@/lib/site-config";
-import { cn } from "@/lib/utils";
 
 export interface SiteHeaderProps {
-  /** Прозрачная шапка поверх Hero (главная). Иначе — липкая с размытием фона. */
+  /** Прозрачная шапка поверх Hero (главная), с фоном после прокрутки. Иначе — липкая с размытием фона. */
   overlay?: boolean;
 }
 
 export function SiteHeader({ overlay = false }: SiteHeaderProps) {
   return (
-    <header
-      className={cn(
-        "z-40 w-full",
-        overlay
-          ? "absolute inset-x-0 top-0"
-          : "sticky top-0 border-b border-line/10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-      )}
-    >
+    <ScrollHeader overlay={overlay}>
       {SITE.demoContent && (
         <p className="bg-gold px-4 py-1.5 text-center text-xs font-medium text-graphite">
           Демо-версия: объекты, отели, цены и телефоны — примеры, а не реальные предложения.
@@ -30,20 +23,9 @@ export function SiteHeader({ overlay = false }: SiteHeaderProps) {
       <div className="container flex h-16 items-center justify-between">
         <Logo height={30} priority />
         <nav aria-label="Основная навигация" className="flex items-center gap-0.5 text-sm font-medium sm:gap-1">
-          <Link href="/catalog" className="hidden rounded-md px-2 py-2 text-body transition-colors hover:text-heading min-[400px]:inline-flex sm:px-3">
-            <span className="sm:hidden">Купить</span>
-            <span className="hidden sm:inline">Новостройки</span>
-          </Link>
-          <Link href="/catalog?type=secondary" className="hidden rounded-md px-3 py-2 text-body transition-colors hover:text-heading md:inline-flex">
-            Вторичка
-          </Link>
-          <Link href="/catalog?type=rent" className="hidden rounded-md px-3 py-2 text-body transition-colors hover:text-heading sm:inline-flex">
-            Аренда
-          </Link>
-          <Link href="/hotels" className="rounded-md px-2 py-2 sm:px-3 text-body transition-colors hover:text-heading">
-            Отели
-          </Link>
+          <HeaderLinks />
           <ThemeToggle className="ml-1" />
+          <FavoritesLink />
           <Link
             href="/profile"
             aria-label="Профиль и мои объекты"
@@ -62,7 +44,7 @@ export function SiteHeader({ overlay = false }: SiteHeaderProps) {
           </Link>
         </nav>
       </div>
-    </header>
+    </ScrollHeader>
   );
 }
 

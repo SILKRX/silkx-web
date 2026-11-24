@@ -89,33 +89,39 @@ export default function HomePage() {
 
       <main className="pb-10">
         {/* ---------------- HERO ---------------- */}
-        <section className="relative isolate flex min-h-[92svh] items-end overflow-hidden sm:items-center">
+        <section className="relative isolate flex min-h-[78svh] items-center overflow-hidden">
           {/* Светлая тема — тёплый фон с силуэтом города, тёмная — анимированный «ночной Ташкент» */}
           <LightHeroBackground />
-          <TashkentSky className="hidden dark:block" />
+          <TashkentSky className="hidden opacity-70 dark:block" />
+          {/* Затемнение слева: декор остаётся атмосферой и не спорит с заголовком и поиском */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-10 hidden bg-[linear-gradient(90deg,rgba(10,14,22,0.85)_0%,rgba(10,14,22,0.55)_45%,transparent_80%)] dark:block"
+          />
 
-          <div className="container w-full pb-12 pt-28 sm:pb-24 sm:pt-32">
-            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-card/70 px-3 py-1 text-xs font-medium text-gold backdrop-blur dark:bg-black/30">
+          <div className="container w-full pb-10 pt-24 sm:pb-16 sm:pt-28">
+            <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-card/70 px-3 py-1 text-xs font-medium text-gold backdrop-blur dark:bg-black/30">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" aria-hidden="true" />
               Новостройки · Вторичка · Аренда — Ташкент
             </p>
-            <h1 className="max-w-3xl text-4xl font-bold leading-[1.08] sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-2xl text-3xl font-bold leading-[1.12] sm:text-4xl lg:text-5xl">
               Найдите дом в Ташкенте&nbsp;— <span className="text-gold">и осмотрите его в 3D</span> до визита
             </h1>
-            <p className="mt-5 max-w-xl text-base text-heading/80 sm:text-lg">
-              Цифровой бутик недвижимости: проверенные объекты, точка на карте и 3D-тур по каждой комнате.
+            <p className="mt-3 max-w-xl text-base text-heading/80">
+              Проверенные объекты, точка на карте и 3D-тур по каждой комнате.
             </p>
 
-            <HeroPoints className="mt-6" />
-
-            <div className="mt-8 max-w-4xl">
+            {/* Поиск — главное действие: сразу под заголовком, кнопка «Найти» видна на первом экране */}
+            <div className="mt-6 max-w-5xl">
               <HeroSearch />
             </div>
+
+            <HeroPoints className="mt-5" />
           </div>
         </section>
 
         {/* ---------------- ГОРЯЧИЕ ПРЕДЛОЖЕНИЯ ---------------- */}
-        <section aria-labelledby="hot-offers-title" className="container py-10 sm:py-14">
+        <section aria-labelledby="hot-offers-title" className="container py-8 sm:py-12">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-gold">Отбор SILKX</p>
@@ -165,7 +171,7 @@ export default function HomePage() {
         </section>
 
         {/* ---------------- ОТЕЛИ ---------------- */}
-        <section aria-labelledby="hotels-title" className="container py-10 sm:py-14">
+        <section aria-labelledby="hotels-title" className="container py-8 sm:py-12">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-gold">Гостям Ташкента</p>
@@ -189,7 +195,7 @@ export default function HomePage() {
         </section>
 
         {/* ---------------- 3D-ТУР ---------------- */}
-        <section id="tour" aria-labelledby="tour-title" className="container scroll-mt-20 py-10 sm:py-14">
+        <section id="tour" aria-labelledby="tour-title" className="container scroll-mt-20 py-8 sm:py-12">
           <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.4fr]">
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-gold">Новое на SILKX</p>
@@ -221,7 +227,7 @@ export default function HomePage() {
         </section>
 
         {/* ---------------- ДЛЯ КОГО ---------------- */}
-        <section aria-labelledby="audience-title" className="container py-10 sm:py-14">
+        <section aria-labelledby="audience-title" className="container py-8 sm:py-12">
           <h2 id="audience-title" className="mb-6 text-2xl sm:text-3xl">
             SILKX для каждого
           </h2>
@@ -248,7 +254,7 @@ export default function HomePage() {
         </section>
 
         {/* ---------------- ПОЧЕМУ SILKX ---------------- */}
-        <section id="why" aria-labelledby="why-title" className="container scroll-mt-20 py-10 sm:py-14">
+        <section id="why" aria-labelledby="why-title" className="container scroll-mt-20 py-8 sm:py-12">
           <h2 id="why-title" className="mb-6 text-2xl sm:text-3xl">
             Почему SILKX
           </h2>
@@ -266,7 +272,7 @@ export default function HomePage() {
         </section>
 
         {/* ---------------- CTA СОБСТВЕННИКАМ ---------------- */}
-        <section className="container py-10 sm:py-14">
+        <section className="container py-8 sm:py-12">
           <div className="relative isolate overflow-hidden rounded-2xl border border-gold/20 bg-[radial-gradient(ellipse_70%_90%_at_100%_0%,rgba(188,163,127,0.22),transparent_60%),linear-gradient(135deg,#F3EEE6,#FFFFFF)] dark:bg-[radial-gradient(ellipse_70%_90%_at_100%_0%,rgba(188,163,127,0.22),transparent_60%),linear-gradient(135deg,#1A2A3A,#1C1C1E)] p-8 sm:p-12">
             <div className="max-w-xl">
               <h2 className="text-2xl sm:text-4xl">Сдаёте или продаёте?</h2>
