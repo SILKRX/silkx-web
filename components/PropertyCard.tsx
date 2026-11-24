@@ -6,7 +6,8 @@ import Link from "next/link";
 import { memo, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 
-import { formatPrice, formatRooms } from "@/lib/format";
+import { FavoriteButton } from "@/components/FavoriteButton";
+import { formatNumber, formatPrice, formatRooms } from "@/lib/format";
 import { TASHKENT_DISTRICTS } from "@/lib/types";
 import type { Currency, DealType, DistrictSlug, PropertyStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -112,104 +113,117 @@ function PropertyCardComponent({
   if (typeof rooms === "number") meta.push(formatRooms(rooms));
   if (typeof areaM2 === "number" && areaM2 > 0) meta.push(`${(areaFrom ?? type === "sale") ? "от " : ""}${Math.round(areaM2)} м²`);
 
+  // Цена за м² — помогает сравнивать объекты разной площади (только продажа в USD)
+  const pricePerM2 =
+    type === "sale" && currency === "USD" && price > 0 && typeof areaM2 === "number" && areaM2 > 0 ? Math.round(price / areaM2 / 10) * 10 : null;
+
   return (
-    <Link
-      href={link}
-      aria-label={`${title}, ${districtLabel} район, ${formatPrice(price, currency, type, { from: areaFrom })}`}
+    <div
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-lg border border-line/5 bg-card",
         "transition-[box-shadow,transform,border-color] duration-300 ease-out",
         "hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-gold-glow",
-        "focus-visible:shadow-gold-glow active:translate-y-0 active:scale-[0.99]",
+        "focus-within:shadow-gold-glow",
         className,
       )}
     >
-      {/* --- Медиа --- */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-panel to-deep-blue">
-        {showImage && imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={title}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            priority={priority}
-            onError={() => setImageFailed(true)}
-            className={cn(
-              "object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]",
-              isReserved && "grayscale-[60%]",
-            )}
-          />
-        ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-body/60" aria-hidden="true">
-            {imageFailed ? <ImageOff className="h-8 w-8" /> : <Building2 className="h-8 w-8" />}
-            <span className="text-xs">Фото скоро появится</span>
+      <Link
+        href={link}
+        aria-label={`${title}, ${districtLabel} район, ${formatPrice(price, currency, type, { from: areaFrom })}`}
+        className="flex flex-1 flex-col focus-visible:outline-none active:scale-[0.99]"
+      >
+        {/* --- Медиа --- */}
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-panel to-deep-blue">
+          {showImage && imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              priority={priority}
+              onError={() => setImageFailed(true)}
+              className={cn(
+                "object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]",
+                isReserved && "grayscale-[60%]",
+              )}
+            />
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-body/60" aria-hidden="true">
+              {imageFailed ? <ImageOff className="h-8 w-8" /> : <Building2 className="h-8 w-8" />}
+              <span className="text-xs">Фото скоро появится</span>
+            </div>
+          )}
+
+          {/* Градиент снизу — чтобы бейджи читались на любом фото */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />
+
+          <div className="absolute left-3 top-3 flex flex-wrap items-center gap-2">
+            <span
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none backdrop-blur-sm",
+                statusCfg.className,
+              )}
+            >
+              <StatusIcon className="h-3.5 w-3.5" aria-hidden="true" />
+              {statusCfg.label}
+            </span>
           </div>
-        )}
 
-        {/* Градиент снизу — чтобы бейджи читались на любом фото */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />
+          {has3dTour && (
+            <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold leading-none text-gold-bright ring-1 ring-gold/40 backdrop-blur-sm">
+              <Box className="h-3.5 w-3.5" aria-hidden="true" />
+              3D-тур
+            </span>
+          )}
 
-        <div className="absolute left-3 top-3 flex flex-wrap items-center gap-2">
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none backdrop-blur-sm",
-              statusCfg.className,
-            )}
-          >
-            <StatusIcon className="h-3.5 w-3.5" aria-hidden="true" />
-            {statusCfg.label}
+          {/* Второстепенное — тип и пометка «пример»: мелко и приглушённо, не спорит со статусом */}
+          <span className="absolute bottom-3 right-3 text-[10px] font-medium uppercase tracking-wider text-white/80 drop-shadow">
+            {kindLabel ?? TYPE_LABEL[type]}
+            {demo ? " · пример" : ""}
           </span>
         </div>
 
-        {has3dTour && (
-          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold leading-none text-gold-bright ring-1 ring-gold/40 backdrop-blur-sm">
-            <Box className="h-3.5 w-3.5" aria-hidden="true" />
-            3D-тур
-          </span>
-        )}
+        {/* --- Контент --- */}
+        <div className="flex flex-1 flex-col gap-3 p-4">
+          <div className="space-y-1">
+            <h3 className="line-clamp-2 font-heading text-base font-semibold leading-snug text-heading">{title}</h3>
+            <p className="flex items-center gap-1 text-sm text-body">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-gold" aria-hidden="true" />
+              <span className="truncate">{districtLabel} р-н</span>
+            </p>
+          </div>
 
-        <span className="absolute right-3 top-3 rounded-full bg-graphite/70 px-2.5 py-1 text-[11px] font-medium leading-none text-white backdrop-blur-sm">
-          {demo ? "Пример · " : ""}
-          {kindLabel ?? TYPE_LABEL[type]}
-        </span>
-      </div>
+          {visibleTags.length > 0 && (
+            <ul className="flex flex-wrap gap-1.5" aria-label="Особенности">
+              {visibleTags.map((tag) => (
+                <li
+                  key={tag}
+                  className="rounded-md bg-gold-muted px-2 py-1 text-[11px] font-medium leading-none text-gold"
+                >
+                  {tag}
+                </li>
+              ))}
+              {hiddenTagsCount > 0 && (
+                <li className="rounded-md bg-line/5 px-2 py-1 text-[11px] font-medium leading-none text-body">
+                  +{hiddenTagsCount}
+                </li>
+              )}
+            </ul>
+          )}
 
-      {/* --- Контент --- */}
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div className="space-y-1">
-          <h3 className="line-clamp-2 font-heading text-base font-semibold leading-snug text-heading">{title}</h3>
-          <p className="flex items-center gap-1 text-sm text-body">
-            <MapPin className="h-3.5 w-3.5 shrink-0 text-gold" aria-hidden="true" />
-            <span className="truncate">{districtLabel} р-н</span>
-          </p>
+          <div className="mt-auto flex items-end justify-between gap-3 border-t border-line/5 pt-3">
+            <div className="space-y-1">
+              <p className="tabular font-heading text-lg font-bold leading-none text-heading">
+                {formatPrice(price, currency, type, { from: areaFrom })}
+              </p>
+              {pricePerM2 && <p className="tabular text-[11px] leading-none text-body">≈ ${formatNumber(pricePerM2)} / м²</p>}
+            </div>
+            {meta.length > 0 && <p className="shrink-0 text-xs text-body">{meta.join(" · ")}</p>}
+          </div>
         </div>
-
-        {visibleTags.length > 0 && (
-          <ul className="flex flex-wrap gap-1.5" aria-label="Особенности">
-            {visibleTags.map((tag) => (
-              <li
-                key={tag}
-                className="rounded-md bg-gold-muted px-2 py-1 text-[11px] font-medium leading-none text-gold"
-              >
-                {tag}
-              </li>
-            ))}
-            {hiddenTagsCount > 0 && (
-              <li className="rounded-md bg-line/5 px-2 py-1 text-[11px] font-medium leading-none text-body">
-                +{hiddenTagsCount}
-              </li>
-            )}
-          </ul>
-        )}
-
-        <div className="mt-auto flex items-end justify-between gap-3 border-t border-line/5 pt-3">
-          <p className="tabular font-heading text-lg font-bold leading-none text-heading">
-            {formatPrice(price, currency, type, { from: areaFrom })}
-          </p>
-          {meta.length > 0 && <p className="shrink-0 text-xs text-body">{meta.join(" · ")}</p>}
-        </div>
-      </div>
-    </Link>
+      </Link>
+      <FavoriteButton id={id} title={title} className="absolute right-3 top-3 z-10" />
+    </div>
   );
 }
 

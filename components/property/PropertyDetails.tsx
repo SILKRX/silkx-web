@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { PropertyMap } from "@/components/map/PropertyMap";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { LeadForm } from "@/components/property/LeadForm";
 import { PropertyInfo } from "@/components/property/PropertyInfo";
 import { TourButton } from "@/components/tour/TourButton";
@@ -144,6 +145,7 @@ export function PropertyDetails({ property: p }: { property: Property }) {
               </p>
             )}
             {tour.length > 0 && <TourButton scenes={tour} title={p.title} className="w-full" />}
+            <FavoriteButton id={p.id} title={p.title} withLabel className="w-full rounded-lg" />
             {contactHref && (
               <a
                 href={contactHref}

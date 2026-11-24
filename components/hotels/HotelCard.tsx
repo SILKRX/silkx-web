@@ -79,8 +79,12 @@ export function HotelCard({ hotel: h, priority = false, className }: { hotel: Ho
             <span className="truncate">{TASHKENT_DISTRICTS[h.district]} р-н</span>
           </p>
         </div>
+        <p className="text-xs text-body">
+          Заезд с {h.checkIn} · выезд до {h.checkOut}
+          {h.amenities.length > 0 && ` · ${h.amenities.slice(0, 2).join(", ")}`}
+        </p>
         <ul className="flex flex-wrap gap-1.5">
-          {h.tags.map((t) => (
+          {h.tags.slice(0, 3).map((t) => (
             <li key={t} className="rounded-md bg-gold-muted px-2 py-1 text-[11px] font-medium leading-none text-gold">
               {t}
             </li>
